@@ -1,4 +1,4 @@
-package net.rubygrapefruit.ansi;
+package net.rubygrapefruit.ansi.tokens;
 
 public class NewLine extends Token {
     @Override

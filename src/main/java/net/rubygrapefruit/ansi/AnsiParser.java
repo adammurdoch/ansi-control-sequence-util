@@ -1,5 +1,7 @@
 package net.rubygrapefruit.ansi;
 
+import net.rubygrapefruit.ansi.tokens.*;
+
 import java.nio.charset.Charset;
 
 public class AnsiParser {

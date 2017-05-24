@@ -1,4 +1,4 @@
-package net.rubygrapefruit.ansi;
+package net.rubygrapefruit.ansi.tokens;
 
 public class ControlSequence extends Token {
     private final String sequence;
