@@ -1,6 +1,6 @@
 package net.rubygrapefruit.ansi;
 
-import net.rubygrapefruit.ansi.tokens.*;
+import net.rubygrapefruit.ansi.token.*;
 
 import java.nio.charset.Charset;
 

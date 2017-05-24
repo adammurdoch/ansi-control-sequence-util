@@ -1,4 +1,4 @@
-package net.rubygrapefruit.ansi.tokens;
+package net.rubygrapefruit.ansi.token;
 
 /**
  * A sequence of characters, other than control sequences and end-of-line characters.
