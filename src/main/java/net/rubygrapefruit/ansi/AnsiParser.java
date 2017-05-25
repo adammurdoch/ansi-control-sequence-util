@@ -54,10 +54,10 @@ public class AnsiParser {
         int pos = 0;
         while (pos < string.length()) {
             if (string.charAt(pos) == '\n') {
-                visitor.visit(new NewLine());
+                visitor.visit(NewLine.INSTANCE);
                 pos++;
             } else if (string.charAt(pos) == '\r') {
-                visitor.visit(new CarriageReturn());
+                visitor.visit(CarriageReturn.INSTANCE);
                 pos++;
             } else {
                 int endToken = pos;
