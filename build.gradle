@@ -5,6 +5,8 @@ repositories {
     jcenter()
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+
 dependencies {
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.11'
     testImplementation 'org.spockframework:spock-core:1.0-groovy-2.4'

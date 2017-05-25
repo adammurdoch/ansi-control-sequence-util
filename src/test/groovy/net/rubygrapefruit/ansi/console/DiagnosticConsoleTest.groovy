@@ -19,13 +19,13 @@ class DiagnosticConsoleTest extends Specification {
         console.visit(new ControlSequence("1;2m"))
         console.toString() == "abc{escape 1;2m}"
 
-        console.visit(new NewLine())
+        console.visit(NewLine.INSTANCE)
         console.toString() == "abc{escape 1;2m}\n"
 
         console.visit(new ControlSequence("A"))
         console.toString() == "abc{escape 1;2m}\n{escape A}"
 
-        console.visit(new NewLine())
+        console.visit(NewLine.INSTANCE)
         console.toString() == "abc{escape 1;2m}\n{escape A}\n"
     }
 
@@ -35,28 +35,28 @@ class DiagnosticConsoleTest extends Specification {
         expect:
         console.toString() == ""
 
-        console.visit(new NewLine())
+        console.visit(NewLine.INSTANCE)
         console.toString() == "\n"
 
-        console.visit(new CarriageReturn())
-        console.toString() == "\n\r"
+        console.visit(CarriageReturn.INSTANCE)
+        console.toString() == "\n{cr}"
 
-        console.visit(new CarriageReturn())
-        console.toString() == "\n\r\r"
+        console.visit(CarriageReturn.INSTANCE)
+        console.toString() == "\n{cr}{cr}"
 
-        console.visit(new NewLine())
-        console.toString() == "\n\r\n"
-
-        console.visit(new Text("abc"))
-        console.toString() == "\n\r\nabc"
-
-        console.visit(new CarriageReturn())
-        console.toString() == "\n\r\nabc\r"
+        console.visit(NewLine.INSTANCE)
+        console.toString() == "\n{cr}\n"
 
         console.visit(new Text("abc"))
-        console.toString() == "\n\r\nabc\rabc"
+        console.toString() == "\n{cr}\nabc"
 
-        console.visit(new NewLine())
-        console.toString() == "\n\r\nabc\rabc\n"
+        console.visit(CarriageReturn.INSTANCE)
+        console.toString() == "\n{cr}\nabc{cr}"
+
+        console.visit(new Text("abc"))
+        console.toString() == "\n{cr}\nabc{cr}abc"
+
+        console.visit(NewLine.INSTANCE)
+        console.toString() == "\n{cr}\nabc{cr}abc\n"
     }
 }

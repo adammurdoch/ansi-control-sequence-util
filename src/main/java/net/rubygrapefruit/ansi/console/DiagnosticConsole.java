@@ -22,12 +22,12 @@ public class DiagnosticConsole implements Visitor {
             result.append("{escape ").append(controlSequence.getSequence()).append('}');
         } else if (token instanceof NewLine) {
             if (last instanceof CarriageReturn) {
-                result.replace(result.length() - 1, result.length(), "\n");
+                result.replace(result.length() - 4, result.length(), "\n");
             } else {
                 result.append('\n');
             }
         } else if (token instanceof CarriageReturn) {
-            result.append('\r');
+            result.append("{cr}");
         } else {
             throw new UnsupportedOperationException("Unknown token: " + token);
         }
