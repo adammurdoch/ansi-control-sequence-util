@@ -1,9 +1,6 @@
 package net.rubygrapefruit.ansi.console
 
-import net.rubygrapefruit.ansi.token.CarriageReturn
-import net.rubygrapefruit.ansi.token.ControlSequence
-import net.rubygrapefruit.ansi.token.NewLine
-import net.rubygrapefruit.ansi.token.Text
+import net.rubygrapefruit.ansi.token.*
 import spock.lang.Specification
 
 class AnsiConsoleTest extends Specification {
@@ -73,12 +70,12 @@ class AnsiConsoleTest extends Specification {
         console.rows.empty
 
         console.visit(new Text("123"))
-        console.visit(new ControlSequence("1m"))
+        console.visit(new UnrecognizedControlSequence("1m"))
         console.rows.size() == 1
         console.rows[0].visit(new DiagnosticConsole()).toString() == "123"
 
         console.visit(new Text(" "))
-        console.visit(new ControlSequence("A"))
+        console.visit(new CursorDown(12))
         console.visit(NewLine.INSTANCE)
         console.rows.size() == 1
         console.rows[0].visit(new DiagnosticConsole()).toString() == "123 "
@@ -89,7 +86,6 @@ class AnsiConsoleTest extends Specification {
         console.rows.empty
 
         console.visit(new Text("123"))
-        console.visit(new ControlSequence("1m"))
         console.visit(new Text("456"))
         console.rows.size() == 1
         console.rows[0].visit(new DiagnosticConsole()).toString() == "123456"
@@ -108,9 +104,7 @@ class AnsiConsoleTest extends Specification {
         console.rows[0].visit(new DiagnosticConsole()).toString() == "abcdefgh"
 
         console.visit(CarriageReturn.INSTANCE)
-        console.visit(new ControlSequence("1m"))
         console.visit(new Text("---"))
-        console.visit(new ControlSequence("m"))
         console.rows.size() == 1
         console.rows[0].visit(new DiagnosticConsole()).toString() == "---defgh"
 

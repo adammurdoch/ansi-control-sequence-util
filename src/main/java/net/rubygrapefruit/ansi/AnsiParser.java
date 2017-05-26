@@ -44,6 +44,42 @@ public class AnsiParser {
         }
     }
 
+    private static boolean parse(String params, char code, Visitor visitor) {
+        if (code == 'A') {
+            if (params.isEmpty()) {
+                visitor.visit(new CursorUp(1));
+            } else {
+                visitor.visit(new CursorUp(Integer.parseInt(params)));
+            }
+            return true;
+        }
+        if (code == 'B') {
+            if (params.isEmpty()) {
+                visitor.visit(new CursorDown(1));
+            } else {
+                visitor.visit(new CursorDown(Integer.parseInt(params)));
+            }
+            return true;
+        }
+        if (code == 'C') {
+            if (params.isEmpty()) {
+                visitor.visit(new CursorForward(1));
+            } else {
+                visitor.visit(new CursorForward(Integer.parseInt(params)));
+            }
+            return true;
+        }
+        if (code == 'D') {
+            if (params.isEmpty()) {
+                visitor.visit(new CursorBackward(1));
+            } else {
+                visitor.visit(new CursorBackward(Integer.parseInt(params)));
+            }
+            return true;
+        }
+        return false;
+    }
+
     private static class ParsingStream extends OutputStream {
         private final AnsiByteConsumer sink;
 
@@ -99,10 +135,9 @@ public class AnsiParser {
                 switch (state) {
                     case LeftParen:
                         if (buffer.peek() != '[') {
-                            visitor.visit(new ControlSequence(""));
+                            visitor.visit(new UnrecognizedControlSequence(""));
                             state = State.Normal;
                         } else {
-                            currentSequence.append('[');
                             buffer.consume();
                             state = State.Param;
                         }
@@ -117,12 +152,15 @@ public class AnsiParser {
                         }
                         break;
                     case Code:
-                        char next = (char)buffer.peek();
+                        char next = (char) buffer.peek();
                         if (next >= 'a' && next <= 'z' || next >= 'A' && next <= 'Z') {
-                            currentSequence.append(next);
                             buffer.consume();
+                            if ( !parse(currentSequence.toString(), next, visitor)) {
+                                visitor.visit(new UnrecognizedControlSequence("[" + currentSequence.toString() + next));
+                            }
+                        } else {
+                            visitor.visit(new UnrecognizedControlSequence("[" + currentSequence.toString()));
                         }
-                        visitor.visit(new ControlSequence(currentSequence.toString()));
                         currentSequence.setLength(0);
                         state = State.Normal;
                         break;
@@ -186,5 +224,4 @@ public class AnsiParser {
             return null;
         }
     }
-
 }

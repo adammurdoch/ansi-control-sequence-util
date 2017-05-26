@@ -7,6 +7,11 @@ public class NewLine extends Token {
     }
 
     @Override
+    public void appendDiagnostic(StringBuilder builder) {
+        builder.append("{new-line}");
+    }
+
+    @Override
     public String toString() {
         return "[new-line]";
     }

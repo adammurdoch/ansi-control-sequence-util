@@ -11,6 +11,11 @@ public class Text extends Token {
     }
 
     @Override
+    public void appendDiagnostic(StringBuilder builder) {
+        builder.append(text);
+    }
+
+    @Override
     public String toString() {
         return "[text '" + text + "']";
     }

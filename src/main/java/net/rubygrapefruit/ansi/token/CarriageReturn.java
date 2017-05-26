@@ -7,6 +7,11 @@ public class CarriageReturn extends Token {
     }
 
     @Override
+    public void appendDiagnostic(StringBuilder builder) {
+        builder.append("{cr}");
+    }
+
+    @Override
     public String toString() {
         return "[cr]";
     }

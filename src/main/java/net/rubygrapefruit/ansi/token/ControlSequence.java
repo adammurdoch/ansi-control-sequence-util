@@ -1,18 +1,4 @@
 package net.rubygrapefruit.ansi.token;
 
-public class ControlSequence extends Token {
-    private final String sequence;
-
-    public ControlSequence(String sequence) {
-        this.sequence = sequence;
-    }
-
-    @Override
-    public String toString() {
-        return "[control-sequence '" + sequence + "']";
-    }
-
-    public String getSequence() {
-        return sequence;
-    }
+public abstract class ControlSequence extends Token {
 }

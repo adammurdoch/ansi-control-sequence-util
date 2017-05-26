@@ -1,9 +1,13 @@
 package net.rubygrapefruit.ansi.console
 
 import net.rubygrapefruit.ansi.token.CarriageReturn
-import net.rubygrapefruit.ansi.token.ControlSequence
+import net.rubygrapefruit.ansi.token.CursorBackward
+import net.rubygrapefruit.ansi.token.CursorDown
+import net.rubygrapefruit.ansi.token.CursorForward
+import net.rubygrapefruit.ansi.token.CursorUp
 import net.rubygrapefruit.ansi.token.NewLine
 import net.rubygrapefruit.ansi.token.Text
+import net.rubygrapefruit.ansi.token.UnrecognizedControlSequence
 import spock.lang.Specification
 
 class DiagnosticConsoleTest extends Specification {
@@ -16,17 +20,23 @@ class DiagnosticConsoleTest extends Specification {
         console.visit(new Text("abc"))
         console.toString() == "abc"
 
-        console.visit(new ControlSequence("1;2m"))
+        console.visit(new UnrecognizedControlSequence("1;2m"))
         console.toString() == "abc{escape 1;2m}"
 
         console.visit(NewLine.INSTANCE)
         console.toString() == "abc{escape 1;2m}\n"
 
-        console.visit(new ControlSequence("A"))
+        console.visit(new UnrecognizedControlSequence("A"))
         console.toString() == "abc{escape 1;2m}\n{escape A}"
 
         console.visit(NewLine.INSTANCE)
         console.toString() == "abc{escape 1;2m}\n{escape A}\n"
+
+        console.visit(new CursorUp(4))
+        console.visit(new CursorDown(12))
+        console.visit(new CursorForward(1))
+        console.visit(new CursorBackward(1))
+        console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}"
     }
 
     def "normalizes cr-nl sequence"() {

@@ -86,6 +86,41 @@ class AnsiParserTest extends Specification {
         visitor.tokens[7] instanceof CarriageReturn
     }
 
+    def "parses cursor movement control sequence"() {
+        when:
+        def output = parser.newParser("utf-8", visitor)
+        output.write(bytes("\u001B[A"))
+        output.write(bytes("\u001B[12A"))
+        output.write(bytes("\u001B[004A"))
+        output.write(bytes("\u001B[B"))
+        output.write(bytes("\u001B[12B"))
+        output.write(bytes("\u001B[C"))
+        output.write(bytes("\u001B[33C"))
+        output.write(bytes("\u001B[D"))
+        output.write(bytes("\u001B[20D"))
+
+        then:
+        visitor.tokens.size() == 9
+        visitor.tokens[0] instanceof CursorUp
+        visitor.tokens[0].count == 1
+        visitor.tokens[1] instanceof CursorUp
+        visitor.tokens[1].count == 12
+        visitor.tokens[2] instanceof CursorUp
+        visitor.tokens[2].count == 4
+        visitor.tokens[3] instanceof CursorDown
+        visitor.tokens[3].count == 1
+        visitor.tokens[4] instanceof CursorDown
+        visitor.tokens[4].count == 12
+        visitor.tokens[5] instanceof CursorForward
+        visitor.tokens[5].count == 1
+        visitor.tokens[6] instanceof CursorForward
+        visitor.tokens[6].count == 33
+        visitor.tokens[7] instanceof CursorBackward
+        visitor.tokens[7].count == 1
+        visitor.tokens[8] instanceof CursorBackward
+        visitor.tokens[8].count == 20
+    }
+
     @Unroll
     def "parses control sequence - #sequence"() {
         when:
@@ -93,20 +128,20 @@ class AnsiParserTest extends Specification {
 
         then:
         visitor.tokens.size() == 4
-        visitor.tokens[0] instanceof ControlSequence
+        visitor.tokens[0] instanceof UnrecognizedControlSequence
         visitor.tokens[0].sequence == sequence
         visitor.tokens[1] instanceof Text
         visitor.tokens[1].text == "abc"
-        visitor.tokens[2] instanceof ControlSequence
+        visitor.tokens[2] instanceof UnrecognizedControlSequence
         visitor.tokens[2].sequence == sequence
         visitor.tokens[3] instanceof NewLine
 
         where:
         sequence  | _
-        '[A'      | _
-        '[1A'     | _
-        '[01234A' | _
-        '[12A'    | _
+        '[q'      | _
+        '[1Q'     | _
+        '[01234q' | _
+        '[12Q'    | _
         '[1;2m'   | _
         '[;2m'    | _
         '[2;m'    | _
@@ -120,7 +155,7 @@ class AnsiParserTest extends Specification {
 
         then:
         visitor.tokens.size() == 2
-        visitor.tokens[0] instanceof ControlSequence
+        visitor.tokens[0] instanceof UnrecognizedControlSequence
         visitor.tokens[0].sequence == expected
         visitor.tokens[1] instanceof Text
         visitor.tokens[1].text == delim
