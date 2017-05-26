@@ -6,6 +6,8 @@ import net.rubygrapefruit.ansi.token.*;
 /**
  * Formats a stream of {@link net.rubygrapefruit.ansi.token.Token} into text, with control sequences converted to human-consumable placeholders, but does not interpret the sequences in any way. Normalizes '\r\n' sequences into a single '\n'.
  *
+ * <p>This can be used as a parameter to {@link net.rubygrapefruit.ansi.AnsiParser#newParser(String, Visitor)} to format a stream of bytes.</p>
+ *
  * <p>Implementations are not thread-safe.</p>
  */
 public class DiagnosticConsole implements Visitor {

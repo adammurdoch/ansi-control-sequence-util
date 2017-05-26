@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * A simple terminal emulator, that interprets a sequence of {@link Token}.
+ *
+ * <p>This can be used as a parameter to {@link net.rubygrapefruit.ansi.AnsiParser#newParser(String, Visitor)} to interpret a stream of bytes.</p>
  */
 public class AnsiConsole implements Visitor {
     private final LinkedList<RowImpl> rows = new LinkedList<RowImpl>();

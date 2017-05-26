@@ -2,55 +2,29 @@ package net.rubygrapefruit.ansi;
 
 import net.rubygrapefruit.ansi.token.*;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 public class AnsiParser {
     /**
-     * Parses the given bytes into a stream of {@link Token} instances.
+     * Creates an {@link OutputStream} that parses the bytes written to it into a stream of {@link Token} instances.
      *
-     * @param bytes The output
-     * @param charset The charset that the text has been encoded using
+     * <p>The {@link OutputStream} is not thread-safe.</p>
+     *
+     * @param charset The charset that the text has been encoded with.
      * @param visitor The visitor to receive the tokens
      */
-    public void parse(byte[] bytes, String charset, Visitor visitor) {
+    public OutputStream newParser(String charset, Visitor visitor) {
         try {
             Charset encoding = Charset.forName(charset);
-            int pos = 0;
-            while (pos < bytes.length) {
-                if (bytes[pos] == 27 && bytes[pos + 1] == '[') {
-                    int startSequence = pos + 2;
-                    int endToken = startSequence;
-                    while (bytes[endToken] >= '0' && bytes[endToken] <= '9') {
-                        endToken++;
-                    }
-                    if (bytes[endToken] == ';') {
-                        endToken++;
-                    }
-                    while (bytes[endToken] >= '0' && bytes[endToken] <= '9') {
-                        endToken++;
-                    }
-                    if (bytes[endToken] >= 'a' && bytes[endToken] <= 'z' || bytes[endToken] >= 'A' && bytes[endToken] <= 'Z') {
-                        endToken++;
-                    }
-                    visitor.visit(new ControlSequence(new String(bytes, startSequence, endToken - startSequence, encoding)));
-                    pos = endToken;
-                    continue;
-                }
-
-                int endToken = pos;
-                while (endToken < bytes.length && bytes[endToken] != 27) {
-                    endToken++;
-                }
-                String sequence = new String(bytes, pos, endToken - pos, encoding);
-                split(sequence, visitor);
-                pos = endToken;
-            }
+            return new ParsingStream(new AnsiByteConsumer(encoding, visitor));
         } catch (Exception e) {
             throw new RuntimeException("Could not parse input", e);
         }
     }
 
-    private void split(String string, Visitor visitor) {
+    private static void split(String string, Visitor visitor) {
         int pos = 0;
         while (pos < string.length()) {
             if (string.charAt(pos) == '\n') {
@@ -69,4 +43,148 @@ public class AnsiParser {
             }
         }
     }
+
+    private static class ParsingStream extends OutputStream {
+        private final AnsiByteConsumer sink;
+
+        ParsingStream(AnsiByteConsumer sink) {
+            this.sink = sink;
+        }
+
+        @Override
+        public void write(int i) throws IOException {
+            byte[] buffer = new byte[1];
+            buffer[0] = (byte) i;
+            write(buffer, 0, 1);
+        }
+
+        @Override
+        public void write(byte[] bytes) throws IOException {
+            write(bytes, 0, bytes.length);
+        }
+
+        @Override
+        public void write(byte[] bytes, int offset, int length) throws IOException {
+            synchronized (sink) {
+                sink.consume(new Buffer(bytes, offset, length));
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+        }
+
+        @Override
+        public void close() throws IOException {
+        }
+    }
+
+    enum State {
+        Normal, LeftParen, Param, Code
+    }
+
+    private static class AnsiByteConsumer {
+        private final StringBuilder currentSequence = new StringBuilder();
+        private final Charset charset;
+        private final Visitor visitor;
+        private State state = State.Normal;
+
+        AnsiByteConsumer(Charset charset, Visitor visitor) {
+            this.charset = charset;
+            this.visitor = visitor;
+        }
+
+        void consume(Buffer buffer) {
+            while (buffer.hasMore()) {
+                switch (state) {
+                    case LeftParen:
+                        if (buffer.peek() != '[') {
+                            visitor.visit(new ControlSequence(""));
+                            state = State.Normal;
+                        } else {
+                            currentSequence.append('[');
+                            buffer.consume();
+                            state = State.Param;
+                        }
+                        break;
+                    case Param:
+                        byte nextDigit = buffer.peek();
+                        if ((nextDigit < '0' || nextDigit > '9') && nextDigit != ';') {
+                            state = State.Code;
+                        } else {
+                            currentSequence.append((char) nextDigit);
+                            buffer.consume();
+                        }
+                        break;
+                    case Code:
+                        char next = (char)buffer.peek();
+                        if (next >= 'a' && next <= 'z' || next >= 'A' && next <= 'Z') {
+                            currentSequence.append(next);
+                            buffer.consume();
+                        }
+                        visitor.visit(new ControlSequence(currentSequence.toString()));
+                        currentSequence.setLength(0);
+                        state = State.Normal;
+                        break;
+                    case Normal:
+                        Buffer prefix = buffer.consumeToNext((byte) 27);
+                        if (prefix == null) {
+                            split(buffer.consumeString(charset), visitor);
+                            return;
+                        }
+                        split(prefix.consumeString(charset), visitor);
+                        state = State.LeftParen;
+                        buffer.consume();
+                        currentSequence.setLength(0);
+                        break;
+                    default:
+                        throw new IllegalStateException();
+                }
+            }
+        }
+    }
+
+    private static class Buffer {
+        private final byte[] buffer;
+        private int offset;
+        private int length;
+
+        Buffer(byte[] buffer, int offset, int length) {
+            this.buffer = buffer;
+            this.offset = offset;
+            this.length = length;
+        }
+
+        String consumeString(Charset charset) {
+            return new String(buffer, offset, length, charset);
+        }
+
+        byte peek() {
+            return buffer[offset];
+        }
+
+        void consume() {
+            offset++;
+            length--;
+        }
+
+        boolean hasMore() {
+            return length > 0;
+        }
+
+        Buffer consumeToNext(byte value) {
+            int maxOffset = offset + length;
+            for (int nextValue = offset; nextValue < maxOffset; nextValue++) {
+                if (buffer[nextValue] == value) {
+                    int count = nextValue - offset;
+                    Buffer result = new Buffer(buffer, offset, count);
+                    offset = nextValue;
+                    length -= count;
+                    return result;
+                }
+            }
+            return null;
+        }
+    }
+
 }
