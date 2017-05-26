@@ -1,5 +1,6 @@
 package net.rubygrapefruit.ansi.console
 
+import net.rubygrapefruit.ansi.token.CarriageReturn
 import net.rubygrapefruit.ansi.token.ControlSequence
 import net.rubygrapefruit.ansi.token.NewLine
 import net.rubygrapefruit.ansi.token.Text
@@ -27,6 +28,14 @@ class AnsiConsoleTest extends Specification {
         console.rows[0].visit(new DiagnosticConsole()).toString() == ""
         console.rows[1].visit(new DiagnosticConsole()).toString() == ""
         console.rows[2].visit(new DiagnosticConsole()).toString() == ""
+
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(NewLine.INSTANCE)
+        console.rows.size() == 4
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.rows[1].visit(new DiagnosticConsole()).toString() == ""
+        console.rows[2].visit(new DiagnosticConsole()).toString() == ""
+        console.rows[3].visit(new DiagnosticConsole()).toString() == ""
     }
 
     def "can append lines of text"() {
@@ -59,19 +68,62 @@ class AnsiConsoleTest extends Specification {
         console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
     }
 
-    def "can append control sequences"() {
+    def "ignores control sequences (for now)"() {
         expect:
         console.rows.empty
 
         console.visit(new Text("123"))
         console.visit(new ControlSequence("1m"))
         console.rows.size() == 1
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{escape 1m}"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123"
 
         console.visit(new Text(" "))
         console.visit(new ControlSequence("A"))
         console.visit(NewLine.INSTANCE)
         console.rows.size() == 1
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{escape 1m} {escape A}"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123 "
+    }
+
+    def "overwrites text after cr"() {
+        expect:
+        console.rows.empty
+
+        console.visit(new Text("123"))
+        console.visit(new ControlSequence("1m"))
+        console.visit(new Text("456"))
+        console.rows.size() == 1
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123456"
+
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(new Text("ab"))
+        console.rows.size() == 1
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "ab3456"
+
+        console.visit(new Text("cd"))
+        console.rows.size() == 1
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "abcd56"
+
+        console.visit(new Text("efgh"))
+        console.rows.size() == 1
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "abcdefgh"
+
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(new ControlSequence("1m"))
+        console.visit(new Text("---"))
+        console.visit(new ControlSequence("m"))
+        console.rows.size() == 1
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "---defgh"
+
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(NewLine.INSTANCE)
+        console.rows.size() == 1
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "---defgh"
+
+        console.visit(new Text("12"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(new Text("4567"))
+        console.rows.size() == 2
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "---defgh"
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "4567"
     }
 }

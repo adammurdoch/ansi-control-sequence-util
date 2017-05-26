@@ -1,10 +1,11 @@
 package net.rubygrapefruit.ansi.console;
 
 import net.rubygrapefruit.ansi.Visitor;
+import net.rubygrapefruit.ansi.token.CarriageReturn;
 import net.rubygrapefruit.ansi.token.NewLine;
+import net.rubygrapefruit.ansi.token.Text;
 import net.rubygrapefruit.ansi.token.Token;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +13,8 @@ import java.util.List;
  * A simple terminal emulator, that interprets a sequence of {@link Token}.
  */
 public class AnsiConsole implements Visitor {
-    private final List<RowImpl> rows = new LinkedList<RowImpl>();
+    private final LinkedList<RowImpl> rows = new LinkedList<RowImpl>();
+    private int col;
     private RowImpl current;
 
     @Override
@@ -22,10 +24,12 @@ public class AnsiConsole implements Visitor {
             rows.add(current);
         }
         if (token instanceof NewLine) {
-            current.hasNewLine = true;
             current = null;
+            col = 0;
+        } else if (token instanceof CarriageReturn) {
+            col = 0;
         } else {
-            current.tokens.add(token);
+            col = current.insertAt(col, token);
         }
     }
 
@@ -48,20 +52,37 @@ public class AnsiConsole implements Visitor {
     }
 
     private static class RowImpl implements Row {
-        private final List<Token> tokens = new ArrayList<>();
-        private boolean hasNewLine;
+        private final StringBuilder chars = new StringBuilder();
 
         @Override
         public String toString() {
-            return tokens.toString();
+            return chars.toString();
         }
 
         @Override
         public <T extends Visitor> T visit(T visitor) {
-            for (Token token : tokens) {
-                visitor.visit(token);
-            }
+            visitor.visit(new Text(chars.toString()));
             return visitor;
+        }
+
+        int insertAt(int col, Token token) {
+            if (token instanceof Text) {
+                Text text = (Text) token;
+                int replace = Math.min(chars.length() - col, text.getText().length());
+                if (replace > 0) {
+                    chars.replace(col, col + replace, text.getText().substring(0, replace));
+                    if (replace == text.getText().length()) {
+                        return col + replace;
+                    }
+                    if (replace < text.getText().length()) {
+                        chars.append(text.getText().substring(replace));
+                    }
+                } else {
+                    chars.append(text.getText());
+                }
+                return chars.length();
+            }
+            return col;
         }
     }
 }
