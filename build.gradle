@@ -6,6 +6,7 @@ repositories {
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.11'

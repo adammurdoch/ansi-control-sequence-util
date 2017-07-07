@@ -1,10 +1,7 @@
 package net.rubygrapefruit.ansi.console;
 
 import net.rubygrapefruit.ansi.Visitor;
-import net.rubygrapefruit.ansi.token.CarriageReturn;
-import net.rubygrapefruit.ansi.token.NewLine;
-import net.rubygrapefruit.ansi.token.Text;
-import net.rubygrapefruit.ansi.token.Token;
+import net.rubygrapefruit.ansi.token.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,21 +14,40 @@ import java.util.List;
 public class AnsiConsole implements Visitor {
     private final LinkedList<RowImpl> rows = new LinkedList<RowImpl>();
     private int col;
-    private RowImpl current;
+    private int row;
+
+    public AnsiConsole() {
+        rows.add(new RowImpl());
+    }
+
+    @Override
+    public String toString() {
+        return "{console row: " + row + " col: " + col + " rows: " + rows + "}";
+    }
 
     @Override
     public void visit(Token token) {
-        if (current == null) {
-            current = new RowImpl();
-            rows.add(current);
-        }
         if (token instanceof NewLine) {
-            current = null;
+            row++;
             col = 0;
+            if (row >= rows.size()) {
+                rows.add(new RowImpl());
+            }
         } else if (token instanceof CarriageReturn) {
             col = 0;
+        } else if (token instanceof CursorUp) {
+            row = Math.max(0, row - ((CursorUp) token).getCount());
+        } else if (token instanceof CursorDown) {
+            row += ((CursorDown) token).getCount();
+            while (row >= rows.size()) {
+                rows.add(new RowImpl());
+            }
+        } else if (token instanceof CursorBackward) {
+            col = Math.max(0, col - ((CursorBackward) token).getCount());
+        } else if (token instanceof CursorForward) {
+            col += ((CursorForward) token).getCount();
         } else {
-            col = current.insertAt(col, token);
+            col = rows.get(row).insertAt(col, token);
         }
     }
 
@@ -70,6 +86,9 @@ public class AnsiConsole implements Visitor {
         int insertAt(int col, Token token) {
             if (token instanceof Text) {
                 Text text = (Text) token;
+                while (col > chars.length()) {
+                    chars.append(' ');
+                }
                 int replace = Math.min(chars.length() - col, text.getText().length());
                 if (replace > 0) {
                     chars.replace(col, col + replace, text.getText().substring(0, replace));
