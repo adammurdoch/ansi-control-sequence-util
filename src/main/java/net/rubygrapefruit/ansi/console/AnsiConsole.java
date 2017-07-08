@@ -66,6 +66,22 @@ public class AnsiConsole implements Visitor {
         return rows;
     }
 
+    /**
+     * Writes the current contents of the console to the given visitor.
+     *
+     * @return the visitor.
+     */
+    public <T extends Visitor> T contents(T visitor) {
+        for (int i = 0; i < rows.size(); i++) {
+            RowImpl row = rows.get(i);
+            if (i > 0) {
+                visitor.visit(NewLine.INSTANCE);
+            }
+            row.visit(visitor);
+        }
+        return visitor;
+    }
+
     public interface Row {
         /**
          * Visits the contents of this row. Does not include any end-of-line characters.
