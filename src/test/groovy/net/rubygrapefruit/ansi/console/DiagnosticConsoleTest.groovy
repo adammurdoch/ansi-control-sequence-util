@@ -45,6 +45,8 @@ class DiagnosticConsoleTest extends Specification {
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.visit(EraseToEndOfLine.INSTANCE)
         console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}{erase-in-line}{erase-to-beginning-of-line}{erase-to-end-of-line}"
+
+        console.contents(new DiagnosticConsole()).toString() == console.toString()
     }
 
     def "normalizes cr-nl sequence"() {
@@ -76,5 +78,7 @@ class DiagnosticConsoleTest extends Specification {
 
         console.visit(NewLine.INSTANCE)
         console.toString() == "\n{cr}\nabc{cr}abc\n"
+
+        console.contents(new DiagnosticConsole()).toString() == console.toString()
     }
 }

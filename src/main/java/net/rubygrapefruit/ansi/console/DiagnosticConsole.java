@@ -3,6 +3,7 @@ package net.rubygrapefruit.ansi.console;
 import net.rubygrapefruit.ansi.Visitor;
 import net.rubygrapefruit.ansi.token.CarriageReturn;
 import net.rubygrapefruit.ansi.token.NewLine;
+import net.rubygrapefruit.ansi.token.Text;
 import net.rubygrapefruit.ansi.token.Token;
 
 /**
@@ -30,6 +31,17 @@ public class DiagnosticConsole implements Visitor {
         last = token;
     }
 
+    /**
+     * Visits the current contents of this console. Note that only plain text is generated.
+     */
+    public <T extends Visitor> T contents(T visitor) {
+        visitor.visit(new Text(result.toString()));
+        return visitor;
+    }
+
+    /**
+     * Returns the current contents of this console.
+     */
     @Override
     public String toString() {
         return result.toString();
