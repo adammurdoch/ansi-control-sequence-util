@@ -25,9 +25,10 @@ This can be used for implementing a terminal emulator or for testing or document
         - 100 - 107 <x> bold background
 - Render unrecognized control sequences in `AnsiConsole` and `HtmlFormatter` in some highly visible way.
 - Escape text content in `HtmlFormatter`.
+- `HtmlFormatter` should stream to an `OutputStream`.
 - `DiagnosticConsole.contents()` should split lines.
-- Strongly typed visitor that accepts only text
-- Strongly typed visitor that accepts only text and text attributes
+- Add a strongly typed visitor that accepts only text
+- Add a strongly typed visitor that accepts only text with attributes
 
 CSS: `color: rgb(0,0,255);` or `color: #00ff00;` or `color: red;`
 CSS: `font-family: monospace`
