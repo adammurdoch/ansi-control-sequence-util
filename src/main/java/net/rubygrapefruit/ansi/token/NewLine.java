@@ -10,9 +10,4 @@ public class NewLine extends Token {
     public void appendDiagnostic(StringBuilder builder) {
         builder.append("{new-line}");
     }
-
-    @Override
-    public String toString() {
-        return "[new-line]";
-    }
 }

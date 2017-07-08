@@ -15,9 +15,4 @@ public class UnrecognizedControlSequence extends ControlSequence {
     public String getSequence() {
         return sequence;
     }
-
-    @Override
-    public String toString() {
-        return "[control-sequence '" + sequence + "']";
-    }
 }

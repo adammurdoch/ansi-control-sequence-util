@@ -25,6 +25,8 @@ public class DiagnosticConsole implements Visitor {
             } else {
                 result.append('\n');
             }
+        } else if (token instanceof Text){
+            result.append(((Text) token).getText());
         } else {
             token.appendDiagnostic(result);
         }

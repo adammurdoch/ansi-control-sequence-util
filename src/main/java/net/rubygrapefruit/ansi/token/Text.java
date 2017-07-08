@@ -12,12 +12,7 @@ public class Text extends Token {
 
     @Override
     public void appendDiagnostic(StringBuilder builder) {
-        builder.append(text);
-    }
-
-    @Override
-    public String toString() {
-        return "[text '" + text + "']";
+        builder.append("{text '").append(text).append("'}");
     }
 
     public String getText() {
