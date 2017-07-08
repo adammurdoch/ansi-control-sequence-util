@@ -133,10 +133,10 @@ class AnsiParserTest extends Specification {
 
         then:
         visitor.tokens.size() == 6
-        visitor.tokens[0] instanceof EraseInLine
-        visitor.tokens[1] instanceof EraseInLine
+        visitor.tokens[0] instanceof EraseToEndOfLine
+        visitor.tokens[1] instanceof EraseToEndOfLine
         visitor.tokens[2] instanceof EraseToBeginningOfLine
-        visitor.tokens[3] instanceof EraseToEndOfLine
+        visitor.tokens[3] instanceof EraseInLine
         visitor.tokens[4] instanceof UnrecognizedControlSequence
         visitor.tokens[4].sequence == "[3K"
         visitor.tokens[4] instanceof UnrecognizedControlSequence

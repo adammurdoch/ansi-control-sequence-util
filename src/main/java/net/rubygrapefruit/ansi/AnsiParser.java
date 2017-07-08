@@ -79,7 +79,7 @@ public class AnsiParser {
         }
         if (code == 'K') {
             if (params.isEmpty() || params.equals("0")) {
-                visitor.visit(EraseInLine.INSTANCE);
+                visitor.visit(EraseToEndOfLine.INSTANCE);
                 return true;
             }
             if (params.equals("1")) {
@@ -87,7 +87,7 @@ public class AnsiParser {
                 return true;
             }
             if (params.equals("2")) {
-                visitor.visit(EraseToEndOfLine.INSTANCE);
+                visitor.visit(EraseInLine.INSTANCE);
                 return true;
             }
         }
