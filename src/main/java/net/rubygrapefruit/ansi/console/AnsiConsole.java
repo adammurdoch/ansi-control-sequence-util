@@ -46,6 +46,12 @@ public class AnsiConsole implements Visitor {
             col = Math.max(0, col - ((CursorBackward) token).getCount());
         } else if (token instanceof CursorForward) {
             col += ((CursorForward) token).getCount();
+        } else if (token instanceof EraseInLine) {
+            rows.get(row).erase(col);
+        } else if (token instanceof EraseToBeginningOfLine) {
+            rows.get(row).eraseToStart(col);
+        } else if (token instanceof EraseToEndOfLine) {
+            rows.get(row).eraseToEnd(col);
         } else {
             col = rows.get(row).insertAt(col, token);
         }
@@ -104,6 +110,21 @@ public class AnsiConsole implements Visitor {
                 return chars.length();
             }
             return col;
+        }
+
+        void erase(int col) {
+            chars.setLength(col);
+            eraseToStart(col);
+        }
+
+        void eraseToStart(int col) {
+            for (int i = 0; i < col; i++) {
+                chars.setCharAt(i, ' ');
+            }
+        }
+
+        void eraseToEnd(int col) {
+            chars.setLength(col);
         }
     }
 }

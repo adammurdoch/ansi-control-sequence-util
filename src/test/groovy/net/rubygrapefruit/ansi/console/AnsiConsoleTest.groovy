@@ -231,4 +231,81 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("..."))
         console.rows[1].visit(new DiagnosticConsole()).toString() == "...__"
     }
+
+    def "can erase in line"() {
+        expect:
+        console.visit(EraseInLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+
+        console.visit(new Text("12345"))
+        console.visit(new CursorBackward(2))
+        console.visit(EraseInLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "   "
+
+        console.visit(new Text("+++"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "   +++"
+
+        console.visit(new CursorForward(3))
+        console.visit(EraseInLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "         "
+
+        console.visit(new Text("+++"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "         +++"
+
+        console.visit(NewLine.INSTANCE)
+        console.visit(new CursorUp(1))
+        console.visit(EraseInLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+    }
+
+    def "can erase to beginning of line"() {
+        expect:
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+
+        console.visit(new Text("12345"))
+        console.visit(new CursorBackward(2))
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "   45"
+
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(new Text("+++"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "+++45"
+
+        console.visit(NewLine.INSTANCE)
+        console.visit(new CursorUp(1))
+        console.visit(new CursorForward(2))
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "  +45"
+
+        console.visit(new CursorForward(3))
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "     "
+    }
+
+    def "can erase to end of line"() {
+        expect:
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+
+        console.visit(new Text("123"))
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123"
+
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+
+        console.visit(new Text("123"))
+        console.visit(new CursorBackward(2))
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1"
+
+        console.visit(NewLine.INSTANCE)
+        console.visit(new CursorUp(1))
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+    }
 }
