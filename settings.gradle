@@ -1,1 +1,3 @@
 rootProject.name = 'ansi-control-sequence-parser'
+
+include 'testApp'
