@@ -6,8 +6,7 @@ import net.rubygrapefruit.ansi.token.NewLine;
 import net.rubygrapefruit.ansi.token.Token;
 
 /**
- * Formats a stream of {@link net.rubygrapefruit.ansi.token.Token} into text, with control sequences converted to human-consumable placeholders, but
- * does not interpret the sequences in any way. Normalizes '\r\n' sequences into a single '\n'.
+ * Formats a stream of {@link Token} instances into plain text, with control sequences converted to human-consumable placeholders. Does not interpret the sequences in any way. Normalizes '\r\n' sequences into a single '\n'.
  *
  * <p>This can be used as a parameter to {@link net.rubygrapefruit.ansi.AnsiParser#newParser(String, Visitor)} to format a stream of bytes.</p>
  *

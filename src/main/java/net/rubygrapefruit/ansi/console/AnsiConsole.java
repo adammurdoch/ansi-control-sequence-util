@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A simple terminal emulator, that interprets a sequence of {@link Token}.
+ * A simple terminal emulator that interprets a stream of {@link Token} instances.
  *
  * <p>This can be used as a parameter to {@link net.rubygrapefruit.ansi.AnsiParser#newParser(String, Visitor)} to interpret a stream of bytes.</p>
  */
@@ -58,7 +58,7 @@ public class AnsiConsole implements Visitor {
     }
 
     /**
-     * Returns the rows display on the console, ordered from top-most to bottom-most.
+     * Returns the current contents of the console, arranged as rows ordered from top-most to bottom-most.
      *
      * @return the rows.
      */
@@ -68,7 +68,7 @@ public class AnsiConsole implements Visitor {
 
     public interface Row {
         /**
-         * Visits the contents of this row. Does not visit any end-of-line characters.
+         * Visits the contents of this row. Does not include any end-of-line characters.
          *
          * @return the visitor.
          */
