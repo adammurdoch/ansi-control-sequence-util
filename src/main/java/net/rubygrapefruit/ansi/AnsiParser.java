@@ -77,6 +77,20 @@ public class AnsiParser {
             }
             return true;
         }
+        if (code == 'K') {
+            if (params.isEmpty() || params.equals("0")) {
+                visitor.visit(EraseInLine.INSTANCE);
+                return true;
+            }
+            if (params.equals("1")) {
+                visitor.visit(EraseToBeginningOfLine.INSTANCE);
+                return true;
+            }
+            if (params.equals("2")) {
+                visitor.visit(EraseToEndOfLine.INSTANCE);
+                return true;
+            }
+        }
         return false;
     }
 

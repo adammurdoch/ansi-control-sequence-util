@@ -12,6 +12,10 @@ public class UnrecognizedControlSequence extends ControlSequence {
         builder.append("{escape ").append(sequence).append("}");
     }
 
+    public String getSequence() {
+        return sequence;
+    }
+
     @Override
     public String toString() {
         return "[control-sequence '" + sequence + "']";

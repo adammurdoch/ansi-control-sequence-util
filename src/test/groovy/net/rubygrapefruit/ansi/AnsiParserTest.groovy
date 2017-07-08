@@ -121,6 +121,28 @@ class AnsiParserTest extends Specification {
         visitor.tokens[8].count == 20
     }
 
+    def "parses line clear control sequence"() {
+        when:
+        def output = parser.newParser("utf-8", visitor)
+        output.write(bytes("\u001B[K"))
+        output.write(bytes("\u001B[0K"))
+        output.write(bytes("\u001B[1K"))
+        output.write(bytes("\u001B[2K"))
+        output.write(bytes("\u001B[3K"))
+        output.write(bytes("\u001B[12K"))
+
+        then:
+        visitor.tokens.size() == 6
+        visitor.tokens[0] instanceof EraseInLine
+        visitor.tokens[1] instanceof EraseInLine
+        visitor.tokens[2] instanceof EraseToBeginningOfLine
+        visitor.tokens[3] instanceof EraseToEndOfLine
+        visitor.tokens[4] instanceof UnrecognizedControlSequence
+        visitor.tokens[4].sequence == "[3K"
+        visitor.tokens[4] instanceof UnrecognizedControlSequence
+        visitor.tokens[5].sequence == "[12K"
+    }
+
     @Unroll
     def "parses control sequence - #sequence"() {
         when:
@@ -137,15 +159,18 @@ class AnsiParserTest extends Specification {
         visitor.tokens[3] instanceof NewLine
 
         where:
-        sequence  | _
-        '[q'      | _
-        '[1Q'     | _
-        '[01234q' | _
-        '[12Q'    | _
-        '[1;2m'   | _
-        '[;2m'    | _
-        '[2;m'    | _
-        '[;m'     | _
+        sequence    | _
+        '[q'        | _
+        '[1Q'       | _
+        '[01234q'   | _
+        '[12Q'      | _
+        '[1;2m'     | _
+        '[123;245m' | _
+        '[;2m'      | _
+        '[;234m'    | _
+        '[2;m'      | _
+        '[234;m'    | _
+        '[;m'       | _
     }
 
     @Unroll
