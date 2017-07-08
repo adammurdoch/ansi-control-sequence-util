@@ -8,6 +8,6 @@ public class EraseToEndOfLine extends ControlSequence {
 
     @Override
     public void appendDiagnostic(StringBuilder builder) {
-        builder.append("{clear-to-end-of-line}");
+        builder.append("{erase-to-end-of-line}");
     }
 }

@@ -8,6 +8,6 @@ public class EraseToBeginningOfLine extends ControlSequence {
 
     @Override
     public void appendDiagnostic(StringBuilder builder) {
-        builder.append("{clear-to-beginning-of-line}");
+        builder.append("{erase-to-beginning-of-line}");
     }
 }

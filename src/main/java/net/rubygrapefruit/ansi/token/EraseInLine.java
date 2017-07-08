@@ -8,6 +8,6 @@ public class EraseInLine extends ControlSequence {
 
     @Override
     public void appendDiagnostic(StringBuilder builder) {
-        builder.append("{clear-line}");
+        builder.append("{erase-in-line}");
     }
 }

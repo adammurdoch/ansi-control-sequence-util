@@ -5,6 +5,9 @@ import net.rubygrapefruit.ansi.token.CursorBackward
 import net.rubygrapefruit.ansi.token.CursorDown
 import net.rubygrapefruit.ansi.token.CursorForward
 import net.rubygrapefruit.ansi.token.CursorUp
+import net.rubygrapefruit.ansi.token.EraseInLine
+import net.rubygrapefruit.ansi.token.EraseToBeginningOfLine
+import net.rubygrapefruit.ansi.token.EraseToEndOfLine
 import net.rubygrapefruit.ansi.token.NewLine
 import net.rubygrapefruit.ansi.token.Text
 import net.rubygrapefruit.ansi.token.UnrecognizedControlSequence
@@ -37,6 +40,11 @@ class DiagnosticConsoleTest extends Specification {
         console.visit(new CursorForward(1))
         console.visit(new CursorBackward(1))
         console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}"
+
+        console.visit(EraseInLine.INSTANCE)
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}{erase-in-line}{erase-to-beginning-of-line}{erase-to-end-of-line}"
     }
 
     def "normalizes cr-nl sequence"() {
