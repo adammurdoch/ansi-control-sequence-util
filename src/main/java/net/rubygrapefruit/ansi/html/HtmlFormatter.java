@@ -3,12 +3,22 @@ package net.rubygrapefruit.ansi.html;
 import net.rubygrapefruit.ansi.Visitor;
 import net.rubygrapefruit.ansi.token.*;
 
+import java.util.Objects;
+
 /**
  * Formats a stream of {@link Token} instances into HTML. Handles text attribute control sequences but does not handle cursor control sequences. To do so, use an instance of this class as a parameter to {@link net.rubygrapefruit.ansi.console.AnsiConsole#contents(Visitor)}.
  *
  * <p>Generates spans with the following classes:</p>
  * <ul>
  *     <li>{@code ansi-bold}: bold text.</li>
+ *     <li>{@code ansi-black}: black foreground.</li>
+ *     <li>{@code ansi-red}: red foreground.</li>
+ *     <li>{@code ansi-green}: green foreground.</li>
+ *     <li>{@code ansi-yellow}: yellow foreground.</li>
+ *     <li>{@code ansi-blue}: blue foreground.</li>
+ *     <li>{@code ansi-magenta}: magenta foreground.</li>
+ *     <li>{@code ansi-cyan}: cyan foreground.</li>
+ *     <li>{@code ansi-white}: white foreground.</li>
  *     <li>{@code ansi-sequence}: a sequence that is recognized but not interpreted.</li>
  *     <li>{@code ansi-unknown-sequence}: an unrecognized sequence.</li>
  * </ul>
@@ -16,6 +26,7 @@ import net.rubygrapefruit.ansi.token.*;
 public class HtmlFormatter implements Visitor {
     private final StringBuilder content = new StringBuilder();
     private boolean bold;
+    private String foreground;
     private boolean spanHasContent;
 
     /**
@@ -24,7 +35,7 @@ public class HtmlFormatter implements Visitor {
     public String toHtml() {
         endCurrentSpan();
 
-        return "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='UTF-8'>\n<style>\npre { font-family: monospace; }\n.ansi-bold { font-weight: bold; }\n.ansi-unknown-sequence { color: white; background: red; }\n.ansi-sequence { color: black; background: #c0c0c0; }</style>\n</head>\n<body>\n<pre>" + content + "</pre>\n</body>\n</html>";
+        return "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='UTF-8'>\n<style>\npre { font-family: monospace; }\n.ansi-bold { font-weight: bold; }\n.ansi-black { color: black; }\n.ansi-red { color: red; }\n.ansi-green { color: green; }\n.ansi-yellow { color: yellow; }\n.ansi-blue { color: blue; }\n.ansi-magenta { color: magenta; }\n.ansi-cyan { color: cyan; }\n.ansi-white { color: white; }\n.ansi-unknown-sequence { color: white; background: red; }\n.ansi-sequence { color: black; background: #c0c0c0; }</style>\n</head>\n<body>\n<pre>" + content + "</pre>\n</body>\n</html>";
     }
 
     @Override
@@ -36,16 +47,26 @@ public class HtmlFormatter implements Visitor {
             appendText("\n");
         } else if (token instanceof CarriageReturn) {
             appendText("\r");
-        } else if (token instanceof BoldOn){
+        } else if (token instanceof BoldOn) {
             if (bold) {
                 return;
             }
+            endCurrentSpan();
             bold = true;
-            spanHasContent = false;
-        } else if (token instanceof BoldOff){
+        } else if (token instanceof BoldOff) {
+            if (!bold) {
+                return;
+            }
             endCurrentSpan();
             bold = false;
-        } else if (token instanceof UnrecognizedControlSequence){
+        } else if (token instanceof ForegroundColor) {
+            ForegroundColor foregroundColor = (ForegroundColor) token;
+            if (Objects.equals(foreground, foregroundColor.getColorName())) {
+                return;
+            }
+            endCurrentSpan();
+            foreground = foregroundColor.getColorName();
+        } else if (token instanceof UnrecognizedControlSequence) {
             endCurrentSpan();
             content.append("<span class='ansi-unknown-sequence'>");
             token.appendDiagnostic(content);
@@ -59,15 +80,21 @@ public class HtmlFormatter implements Visitor {
     }
 
     private void endCurrentSpan() {
-        if (spanHasContent && bold) {
+        if (spanHasContent && (bold || foreground != null)) {
             content.append("</span>");
-            spanHasContent = false;
         }
+        spanHasContent = false;
     }
 
     private void appendText(String chars) {
-        if (!spanHasContent && bold) {
-            content.append("<span class='ansi-bold'>");
+        if (!spanHasContent) {
+            if (bold && foreground != null) {
+                content.append("<span class='ansi-bold ansi-").append(foreground).append("'>");
+            } else if (bold) {
+                content.append("<span class='ansi-bold'>");
+            } else if (foreground != null) {
+                content.append("<span class='ansi-").append(foreground).append("'>");
+            }
         }
         content.append(chars);
         spanHasContent = true;
