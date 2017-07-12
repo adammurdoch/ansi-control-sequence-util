@@ -143,11 +143,52 @@ class AnsiParserTest extends Specification {
         visitor.tokens[5].sequence == "[12K"
     }
 
-    def "parses foreground color control sequence"() {
+    def "parses text attribute control sequence"() {
         when:
         def output = parser.newParser("utf-8", visitor)
         output.write(bytes("\u001B[m"))
         output.write(bytes("\u001B[0m"))
+        output.write(bytes("\u001B[2m"))
+        output.write(bytes("\u001B[99m"))
+        output.write(bytes("\u001B[0;2m"))
+        output.write(bytes("\u001B[99;0m"))
+        output.write(bytes("\u001B[;0m"))
+        output.write(bytes("\u001B[0;m"))
+        output.write(bytes("\u001B[;m"))
+        output.write(bytes("\u001B[;;;;m"))
+        output.write(bytes("\u001B[1;1;;22m"))
+
+        then:
+        visitor.tokens.size() == 13
+        visitor.tokens[0] instanceof ForegroundColor
+        visitor.tokens[0].colorName == null
+        visitor.tokens[1] instanceof BoldOff
+        visitor.tokens[2] instanceof ForegroundColor
+        visitor.tokens[2].colorName == null
+        visitor.tokens[3] instanceof BoldOff
+        visitor.tokens[4] instanceof UnrecognizedControlSequence
+        visitor.tokens[4].sequence == "[2m"
+        visitor.tokens[5] instanceof UnrecognizedControlSequence
+        visitor.tokens[5].sequence == "[99m"
+        visitor.tokens[6] instanceof UnrecognizedControlSequence
+        visitor.tokens[6].sequence == "[0;2m"
+        visitor.tokens[7] instanceof UnrecognizedControlSequence
+        visitor.tokens[7].sequence == "[99;0m"
+        visitor.tokens[8] instanceof UnrecognizedControlSequence
+        visitor.tokens[8].sequence == "[;0m"
+        visitor.tokens[9] instanceof UnrecognizedControlSequence
+        visitor.tokens[9].sequence == "[0;m"
+        visitor.tokens[10] instanceof UnrecognizedControlSequence
+        visitor.tokens[10].sequence == "[;m"
+        visitor.tokens[11] instanceof UnrecognizedControlSequence
+        visitor.tokens[11].sequence == "[;;;;m"
+        visitor.tokens[12] instanceof UnrecognizedControlSequence
+        visitor.tokens[12].sequence == "[1;1;;22m"
+    }
+
+    def "parses foreground color control sequence"() {
+        when:
+        def output = parser.newParser("utf-8", visitor)
         output.write(bytes("\u001B[39m"))
         output.write(bytes("\u001B[30m"))
         output.write(bytes("\u001B[31m"))
@@ -157,37 +198,76 @@ class AnsiParserTest extends Specification {
         output.write(bytes("\u001B[35m"))
         output.write(bytes("\u001B[36m"))
         output.write(bytes("\u001B[37m"))
-        output.write(bytes("\u001B[1m"))
-        output.write(bytes("\u001B[99m"))
 
         then:
-        visitor.tokens.size() == 13
+        visitor.tokens.size() == 9
         visitor.tokens[0] instanceof ForegroundColor
         visitor.tokens[0].colorName == null
         visitor.tokens[1] instanceof ForegroundColor
-        visitor.tokens[1].colorName == null
+        visitor.tokens[1].colorName == "black"
         visitor.tokens[2] instanceof ForegroundColor
-        visitor.tokens[2].colorName == null
+        visitor.tokens[2].colorName == "red"
         visitor.tokens[3] instanceof ForegroundColor
-        visitor.tokens[3].colorName == "black"
+        visitor.tokens[3].colorName == "green"
         visitor.tokens[4] instanceof ForegroundColor
-        visitor.tokens[4].colorName == "red"
+        visitor.tokens[4].colorName == "yellow"
         visitor.tokens[5] instanceof ForegroundColor
-        visitor.tokens[5].colorName == "green"
+        visitor.tokens[5].colorName == "blue"
         visitor.tokens[6] instanceof ForegroundColor
-        visitor.tokens[6].colorName == "yellow"
+        visitor.tokens[6].colorName == "magenta"
         visitor.tokens[7] instanceof ForegroundColor
-        visitor.tokens[7].colorName == "blue"
+        visitor.tokens[7].colorName == "cyan"
         visitor.tokens[8] instanceof ForegroundColor
-        visitor.tokens[8].colorName == "magenta"
+        visitor.tokens[8].colorName == "white"
+    }
+
+    def "parses bold text attribute control sequence"() {
+        when:
+        def output = parser.newParser("utf-8", visitor)
+        output.write(bytes("\u001B[1m"))
+        output.write(bytes("\u001B[22m"))
+
+        then:
+        visitor.tokens.size() == 2
+        visitor.tokens[0] instanceof BoldOn
+        visitor.tokens[1] instanceof BoldOff
+    }
+
+    def "parses composite text attribute control sequence"() {
+        when:
+        def output = parser.newParser("utf-8", visitor)
+        output.write(bytes("\u001B[0;31m"))
+        output.write(bytes("\u001B[32;1m"))
+        output.write(bytes("\u001B[39;22m"))
+        output.write(bytes("\u001B[90m"))
+        output.write(bytes("\u001B[91m"))
+        output.write(bytes("\u001B[22;39;32;1m"))
+
+        then:
+        visitor.tokens.size() == 15
+        visitor.tokens[0] instanceof ForegroundColor
+        visitor.tokens[0].colorName == null
+        visitor.tokens[1] instanceof BoldOff
+        visitor.tokens[2] instanceof ForegroundColor
+        visitor.tokens[2].colorName == "red"
+        visitor.tokens[3] instanceof ForegroundColor
+        visitor.tokens[3].colorName == "green"
+        visitor.tokens[4] instanceof BoldOn
+        visitor.tokens[5] instanceof ForegroundColor
+        visitor.tokens[5].colorName == null
+        visitor.tokens[6] instanceof BoldOff
+        visitor.tokens[7] instanceof ForegroundColor
+        visitor.tokens[7].colorName == "black"
+        visitor.tokens[8] instanceof BoldOn
         visitor.tokens[9] instanceof ForegroundColor
-        visitor.tokens[9].colorName == "cyan"
-        visitor.tokens[10] instanceof ForegroundColor
-        visitor.tokens[10].colorName == "white"
-        visitor.tokens[11] instanceof UnrecognizedControlSequence
-        visitor.tokens[11].sequence == "[1m"
-        visitor.tokens[12] instanceof UnrecognizedControlSequence
-        visitor.tokens[12].sequence == "[99m"
+        visitor.tokens[9].colorName == "red"
+        visitor.tokens[10] instanceof BoldOn
+        visitor.tokens[11] instanceof BoldOff
+        visitor.tokens[12] instanceof ForegroundColor
+        visitor.tokens[12].colorName == null
+        visitor.tokens[13] instanceof ForegroundColor
+        visitor.tokens[13].colorName == "green"
+        visitor.tokens[14] instanceof BoldOn
     }
 
     @Unroll
