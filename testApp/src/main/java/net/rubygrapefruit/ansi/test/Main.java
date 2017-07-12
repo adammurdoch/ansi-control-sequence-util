@@ -2,7 +2,6 @@ package net.rubygrapefruit.ansi.test;
 
 import net.rubygrapefruit.ansi.AnsiParser;
 import net.rubygrapefruit.ansi.console.AnsiConsole;
-import net.rubygrapefruit.ansi.console.DiagnosticConsole;
 import net.rubygrapefruit.ansi.html.HtmlFormatter;
 
 import java.io.BufferedWriter;
@@ -22,7 +21,7 @@ public class Main {
         Path diagnosticHtml = Paths.get(args[1]);
 
         AnsiConsole mainConsole = new AnsiConsole();
-        DiagnosticConsole diagnosticConsole = new DiagnosticConsole();
+        HtmlFormatter diagnosticConsole = new HtmlFormatter();
         OutputStream outputStream = new AnsiParser().newParser("utf-8", token -> {
             diagnosticConsole.visit(token);
             mainConsole.visit(token);
@@ -43,10 +42,8 @@ public class Main {
             writer.write(htmlFormatter.toHtml());
         }
 
-        htmlFormatter = new HtmlFormatter();
-        diagnosticConsole.contents(htmlFormatter);
         try (BufferedWriter writer = Files.newBufferedWriter(diagnosticHtml, Charset.forName("utf-8"))) {
-            writer.write(htmlFormatter.toHtml());
+            writer.write(diagnosticConsole.toHtml());
         }
     }
 }
