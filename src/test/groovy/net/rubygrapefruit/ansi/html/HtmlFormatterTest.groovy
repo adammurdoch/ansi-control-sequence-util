@@ -23,6 +23,6 @@ class HtmlFormatterTest extends Specification {
         formatter.visit(new Text("456"))
         formatter.visit(NewLine.INSTANCE)
         formatter.visit(EraseInLine.INSTANCE)
-        formatter.toHtml().contains("<pre>{cursor-backward 2}456\n{erase-in-line}</pre>")
+        formatter.toHtml().contains("<pre><span class='ansi-unknown-sequence'>{cursor-backward 2}</span>456\n<span class='ansi-unknown-sequence'>{erase-in-line}</span></pre>")
     }
 }
