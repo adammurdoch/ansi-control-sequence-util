@@ -143,6 +143,53 @@ class AnsiParserTest extends Specification {
         visitor.tokens[5].sequence == "[12K"
     }
 
+    def "parses foreground color control sequence"() {
+        when:
+        def output = parser.newParser("utf-8", visitor)
+        output.write(bytes("\u001B[m"))
+        output.write(bytes("\u001B[0m"))
+        output.write(bytes("\u001B[39m"))
+        output.write(bytes("\u001B[30m"))
+        output.write(bytes("\u001B[31m"))
+        output.write(bytes("\u001B[32m"))
+        output.write(bytes("\u001B[33m"))
+        output.write(bytes("\u001B[34m"))
+        output.write(bytes("\u001B[35m"))
+        output.write(bytes("\u001B[36m"))
+        output.write(bytes("\u001B[37m"))
+        output.write(bytes("\u001B[1m"))
+        output.write(bytes("\u001B[99m"))
+
+        then:
+        visitor.tokens.size() == 13
+        visitor.tokens[0] instanceof ForegroundColor
+        visitor.tokens[0].colorName == null
+        visitor.tokens[1] instanceof ForegroundColor
+        visitor.tokens[1].colorName == null
+        visitor.tokens[2] instanceof ForegroundColor
+        visitor.tokens[2].colorName == null
+        visitor.tokens[3] instanceof ForegroundColor
+        visitor.tokens[3].colorName == "black"
+        visitor.tokens[4] instanceof ForegroundColor
+        visitor.tokens[4].colorName == "red"
+        visitor.tokens[5] instanceof ForegroundColor
+        visitor.tokens[5].colorName == "green"
+        visitor.tokens[6] instanceof ForegroundColor
+        visitor.tokens[6].colorName == "yellow"
+        visitor.tokens[7] instanceof ForegroundColor
+        visitor.tokens[7].colorName == "blue"
+        visitor.tokens[8] instanceof ForegroundColor
+        visitor.tokens[8].colorName == "magenta"
+        visitor.tokens[9] instanceof ForegroundColor
+        visitor.tokens[9].colorName == "cyan"
+        visitor.tokens[10] instanceof ForegroundColor
+        visitor.tokens[10].colorName == "white"
+        visitor.tokens[11] instanceof UnrecognizedControlSequence
+        visitor.tokens[11].sequence == "[1m"
+        visitor.tokens[12] instanceof UnrecognizedControlSequence
+        visitor.tokens[12].sequence == "[99m"
+    }
+
     @Unroll
     def "parses control sequence - #sequence"() {
         when:

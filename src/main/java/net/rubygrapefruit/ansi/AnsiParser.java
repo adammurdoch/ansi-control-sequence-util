@@ -91,6 +91,44 @@ public class AnsiParser {
                 return true;
             }
         }
+        if (code == 'm') {
+            if (params.isEmpty() || params.equals("0") || params.equals("39")) {
+                visitor.visit(new ForegroundColor(null));
+                return true;
+            }
+            if (params.equals("30")) {
+                visitor.visit(new ForegroundColor("black"));
+                return true;
+            }
+            if (params.equals("31")) {
+                visitor.visit(new ForegroundColor("red"));
+                return true;
+            }
+            if (params.equals("32")) {
+                visitor.visit(new ForegroundColor("green"));
+                return true;
+            }
+            if (params.equals("33")) {
+                visitor.visit(new ForegroundColor("yellow"));
+                return true;
+            }
+            if (params.equals("34")) {
+                visitor.visit(new ForegroundColor("blue"));
+                return true;
+            }
+            if (params.equals("35")) {
+                visitor.visit(new ForegroundColor("magenta"));
+                return true;
+            }
+            if (params.equals("36")) {
+                visitor.visit(new ForegroundColor("cyan"));
+                return true;
+            }
+            if (params.equals("37")) {
+                visitor.visit(new ForegroundColor("white"));
+                return true;
+            }
+        }
         return false;
     }
 
