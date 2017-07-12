@@ -190,6 +190,36 @@ public class AnsiParser {
             visitor.visit(BoldOn.INSTANCE);
             return true;
         }
+        if (params.equals("92")) {
+            visitor.visit(new ForegroundColor("green"));
+            visitor.visit(BoldOn.INSTANCE);
+            return true;
+        }
+        if (params.equals("93")) {
+            visitor.visit(new ForegroundColor("yellow"));
+            visitor.visit(BoldOn.INSTANCE);
+            return true;
+        }
+        if (params.equals("94")) {
+            visitor.visit(new ForegroundColor("blue"));
+            visitor.visit(BoldOn.INSTANCE);
+            return true;
+        }
+        if (params.equals("95")) {
+            visitor.visit(new ForegroundColor("magenta"));
+            visitor.visit(BoldOn.INSTANCE);
+            return true;
+        }
+        if (params.equals("96")) {
+            visitor.visit(new ForegroundColor("cyan"));
+            visitor.visit(BoldOn.INSTANCE);
+            return true;
+        }
+        if (params.equals("97")) {
+            visitor.visit(new ForegroundColor("white"));
+            visitor.visit(BoldOn.INSTANCE);
+            return true;
+        }
         return false;
     }
 
