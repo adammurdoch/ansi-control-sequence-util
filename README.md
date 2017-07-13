@@ -27,8 +27,13 @@ This can be used for implementing a terminal emulator or for testing or document
 - Escape text content in `HtmlFormatter`.
 - `HtmlFormatter` should stream to an `OutputStream`.
 - `DiagnosticConsole.contents()` should split lines.
-- Add a strongly typed visitor that accepts only text
-- Add a strongly typed visitor that accepts only text with attributes
+- `AnsiConsole` improvements:
+    - Handle foreground colours
+    - Don't generate text attribute resets at end of line when next line has same attributes
+    - When replacing tail of span with another span, check whether next span has target attributes already
+    - When overwriting span contents at offset 0 of span, don't generate empty span and maybe merge with previous
+- Add a strongly typed visitor that accepts only text tokens
+- Add a strongly typed visitor that accepts only text and text attribute tokens
 
 CSS: `color: rgb(0,0,255);` or `color: #00ff00;` or `color: red;`
 CSS: `font-family: monospace`
