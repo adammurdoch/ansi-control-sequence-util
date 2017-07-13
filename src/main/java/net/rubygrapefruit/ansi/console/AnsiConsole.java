@@ -17,6 +17,7 @@ public class AnsiConsole implements Visitor {
     private final LinkedList<RowImpl> rows = new LinkedList<RowImpl>();
     private int col;
     private int row;
+    private boolean bold;
 
     public AnsiConsole() {
         rows.add(new RowImpl());
@@ -54,8 +55,12 @@ public class AnsiConsole implements Visitor {
             rows.get(row).eraseToStart(col);
         } else if (token instanceof EraseToEndOfLine) {
             rows.get(row).eraseToEnd(col);
+        } else if (token instanceof BoldOn) {
+            bold = true;
+        } else if (token instanceof BoldOff) {
+            bold = false;
         } else {
-            col = rows.get(row).insertAt(col, token);
+            col = rows.get(row).insertAt(col, token, bold);
         }
     }
 
@@ -93,56 +98,195 @@ public class AnsiConsole implements Visitor {
         <T extends Visitor> T visit(T visitor);
     }
 
-    private static class RowImpl implements Row {
+    private static class Span {
+        private boolean bold;
         private final StringBuilder chars = new StringBuilder();
+        private Span next;
+
+        Span(String text, boolean bold) {
+            chars.append(text);
+            this.bold = bold;
+        }
+
+        Span() {
+        }
+
+        void collectDetails(StringBuilder builder) {
+            builder.append("{");
+            if (bold) {
+                builder.append("bold ");
+            }
+            builder.append("'").append(chars).append("'}");
+            if (next != null) {
+                next.collectDetails(builder);
+            }
+        }
+
+        void visit(Visitor visitor) {
+            if (chars.length() > 0) {
+                if (bold) {
+                    visitor.visit(BoldOn.INSTANCE);
+                }
+                visitor.visit(new Text(chars.toString()));
+                if (bold) {
+                    visitor.visit(BoldOff.INSTANCE);
+                }
+            }
+            if (next != null) {
+                next.visit(visitor);
+            }
+        }
+
+        void insertAt(int col, String text, boolean bold) {
+            if (col > chars.length()) {
+                if (next != null) {
+                    next.insertAt(col - chars.length(), text, bold);
+                } else if (!this.bold) {
+                    while (col > chars.length()) {
+                        chars.append(' ');
+                    }
+                    if (!bold) {
+                        chars.append(text);
+                    } else {
+                        next = new Span(text, true);
+                    }
+                } else {
+                    throw new UnsupportedOperationException();
+                }
+            } else if (col == chars.length()) {
+                if (next != null) {
+                    next.insertAt(0, text, bold);
+                } else if (bold == this.bold) {
+                    chars.append(text);
+                } else if (chars.length() == 0) {
+                    this.bold = bold;
+                    chars.append(text);
+                } else {
+                    next = new Span(text, bold);
+                }
+            } else if (bold == this.bold) {
+                int replace = Math.min(text.length(), chars.length() - col);
+                if (replace == text.length()) {
+                    chars.replace(col, col + text.length(), text);
+                } else {
+                    chars.setLength(col);
+                    chars.append(text);
+                    if (next != null) {
+                        next = next.remove(text.length() - replace);
+                    }
+                }
+            } else {
+                // Different attributes
+                if (col + text.length() < chars.length()) {
+                    Span tail = new Span(chars.substring(col + text.length()), this.bold);
+                    tail.next = next;
+                    Span replaced = new Span(text, bold);
+                    replaced.next = tail;
+                    chars.setLength(col);
+                    next = replaced;
+                } else {
+                    int remove = col + text.length() - chars.length();
+                    chars.setLength(col);
+                    Span replaced = new Span(text, bold);
+                    if (next != null) {
+                        next = next.remove(remove);
+                    }
+                    replaced.next = next;
+                    next = replaced;
+                }
+            }
+        }
+
+        private Span remove(int count) {
+            if (count == 0) {
+                return this;
+            }
+            if (count < chars.length()) {
+                chars.replace(0, count, "");
+                return this;
+            }
+            if (next != null) {
+                return next.remove(chars.length());
+            }
+            return null;
+        }
+
+        void eraseToEnd(int col) {
+            if (col == chars.length()) {
+                next = null;
+            } else if (col < chars.length()) {
+                chars.setLength(col);
+                next = null;
+            } else if (next != null) {
+                next.eraseToEnd(col - chars.length());
+            } else if (bold) {
+                next = new Span();
+                next.eraseToEnd(col - chars.length());
+            } else {
+                while (col > chars.length()) {
+                    chars.append(' ');
+                }
+            }
+        }
+
+        void erase(int col) {
+            bold = false;
+            chars.setLength(col);
+            for (int i = 0; i < col; i++) {
+                chars.setCharAt(i, ' ');
+            }
+            next = null;
+        }
+
+        void eraseToStart(int col) {
+            if (bold) {
+                throw new UnsupportedOperationException();
+            }
+            if (col <= chars.length()) {
+                for (int i = 0; i < col; i++) {
+                    chars.setCharAt(i, ' ');
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        }
+    }
+
+    private static class RowImpl implements Row {
+        private final Span first = new Span();
 
         @Override
         public String toString() {
-            return chars.toString();
+            StringBuilder builder = new StringBuilder();
+            first.collectDetails(builder);
+            return builder.toString();
         }
 
         @Override
         public <T extends Visitor> T visit(T visitor) {
-            visitor.visit(new Text(chars.toString()));
+            first.visit(visitor);
             return visitor;
         }
 
-        int insertAt(int col, Token token) {
+        int insertAt(int col, Token token, boolean bold) {
             if (token instanceof Text) {
                 Text text = (Text) token;
-                while (col > chars.length()) {
-                    chars.append(' ');
-                }
-                int replace = Math.min(chars.length() - col, text.getText().length());
-                if (replace > 0) {
-                    chars.replace(col, col + replace, text.getText().substring(0, replace));
-                    if (replace == text.getText().length()) {
-                        return col + replace;
-                    }
-                    if (replace < text.getText().length()) {
-                        chars.append(text.getText().substring(replace));
-                    }
-                } else {
-                    chars.append(text.getText());
-                }
-                return chars.length();
+                first.insertAt(col, text.getText(), bold);
+                return col + text.getText().length();
             }
             return col;
         }
 
         void erase(int col) {
-            chars.setLength(col);
-            eraseToStart(col);
+            first.erase(col);
         }
 
         void eraseToStart(int col) {
-            for (int i = 0; i < col; i++) {
-                chars.setCharAt(i, ' ');
-            }
+            first.eraseToStart(col);
         }
 
         void eraseToEnd(int col) {
-            chars.setLength(col);
+            first.eraseToEnd(col);
         }
     }
 }

@@ -356,4 +356,104 @@ class AnsiConsoleTest extends Specification {
         console.rows[0].visit(new DiagnosticConsole()).toString() == ""
         console.contents(new DiagnosticConsole()).toString() == "\n"
     }
+
+    def "can apply bold text"() {
+        expect:
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("+++"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("..."))
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("123"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}456{bold-off}"
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}+++{bold-off}..."
+        console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}456{bold-off}\n{bold-on}+++{bold-off}...\n123"
+    }
+
+    def "can overwrite bold text"() {
+        expect:
+        console.visit(new Text("123456"))
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("+++"))
+        console.visit(new CursorUp(1))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("----"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}----{bold-off}"
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "+++"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}----{bold-off}\n+++"
+
+        console.visit(new CursorBackward(3))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("--"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}-{bold-off}--{bold-on}-{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}-{bold-off}--{bold-on}-{bold-off}\n+++"
+
+        console.visit(new CursorBackward(4))
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "12"
+        console.contents(new DiagnosticConsole()).toString() == "12\n+++"
+
+        console.visit(new CursorForward(4))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("..."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}\n+++"
+    }
+
+    def "can erase to end of line over text with a mix of bold"() {
+        expect:
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(new CursorBackward(4))
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}"
+
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new CursorForward(2))
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  "
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  "
+
+        console.visit(new Text("+++"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("..."))
+        console.visit(new CursorForward(2))
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  {bold-on}+++{bold-off}...  "
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  {bold-on}+++{bold-off}...  "
+    }
+
+    def "can erase line containing text with a mix of bold"() {
+        expect:
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseInLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.contents(new DiagnosticConsole()).toString() == ""
+
+        console.visit(new Text("123"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(EraseInLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "      "
+        console.contents(new DiagnosticConsole()).toString() == "      "
+
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(new CursorForward(2))
+        console.visit(EraseInLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "        "
+        console.contents(new DiagnosticConsole()).toString() == "        "
+    }
 }
