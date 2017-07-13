@@ -151,7 +151,8 @@ public class AnsiConsole implements Visitor {
                         next = new Span(text, true);
                     }
                 } else {
-                    throw new UnsupportedOperationException();
+                    next = new Span();
+                    next.insertAt(col - chars.length(), text, bold);
                 }
             } else if (col == chars.length()) {
                 if (next != null) {
@@ -201,12 +202,15 @@ public class AnsiConsole implements Visitor {
             if (count == 0) {
                 return this;
             }
+            if (count == chars.length()) {
+                return next;
+            }
             if (count < chars.length()) {
                 chars.replace(0, count, "");
                 return this;
             }
             if (next != null) {
-                return next.remove(chars.length());
+                return next.remove(count - chars.length());
             }
             return null;
         }
@@ -239,15 +243,36 @@ public class AnsiConsole implements Visitor {
         }
 
         void eraseToStart(int col) {
-            if (bold) {
-                throw new UnsupportedOperationException();
+            if (col == 0) {
+                return;
             }
             if (col <= chars.length()) {
                 for (int i = 0; i < col; i++) {
                     chars.setCharAt(i, ' ');
                 }
+                if (bold) {
+                    if (col == chars.length()) {
+                        throw new UnsupportedOperationException();
+                    } else {
+                        Span replaced = new Span(chars.substring(col, chars.length()), bold);
+                        chars.setLength(col);
+                        bold = false;
+                        replaced.next = next;
+                        next = replaced;
+                    }
+                }
             } else {
-                throw new UnsupportedOperationException();
+                if (bold) {
+                    throw new UnsupportedOperationException();
+                }
+                int remove = col - chars.length();
+                chars.setLength(col);
+                for (int i = 0; i < col; i++) {
+                    chars.setCharAt(i, ' ');
+                }
+                if (next != null) {
+                    next = next.remove(remove);
+                }
             }
         }
     }

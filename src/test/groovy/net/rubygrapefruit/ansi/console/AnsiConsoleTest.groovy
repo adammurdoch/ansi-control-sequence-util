@@ -402,6 +402,12 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("..."))
         console.rows[0].visit(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}"
         console.contents(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}\n+++"
+
+        console.visit(new CursorForward(2))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("!"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}  !"
+        console.contents(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}  !\n+++"
     }
 
     def "can erase to end of line over text with a mix of bold"() {
@@ -429,6 +435,39 @@ class AnsiConsoleTest extends Specification {
         console.visit(EraseToEndOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  {bold-on}+++{bold-off}...  "
         console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  {bold-on}+++{bold-off}...  "
+    }
+
+    def "can erase to start of line over text with a mix of bold"() {
+        expect:
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(new CursorBackward(4))
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789"
+
+        console.visit(NewLine.INSTANCE)
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}123{bold-off}456"
+        console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789\n{bold-on}123{bold-off}456"
+
+        console.visit(new CursorForward(1))
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[1].visit(new DiagnosticConsole()).toString() == " {bold-on}23{bold-off}456"
+        console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789\n {bold-on}23{bold-off}456"
+
+        console.visit(new CursorForward(2))
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "   456"
+        console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789\n   456"
     }
 
     def "can erase line containing text with a mix of bold"() {
