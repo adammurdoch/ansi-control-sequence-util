@@ -139,9 +139,12 @@ public class AnsiConsole implements Visitor {
 
         void insertAt(int col, String text, boolean bold) {
             if (col > chars.length()) {
+                // Insert beyond the end of this span
                 if (next != null) {
+                    // Insert into next span
                     next.insertAt(col - chars.length(), text, bold);
                 } else if (!this.bold) {
+                    // Pad this span
                     while (col > chars.length()) {
                         chars.append(' ');
                     }
@@ -151,10 +154,12 @@ public class AnsiConsole implements Visitor {
                         next = new Span(text, true);
                     }
                 } else {
+                    // Add padding as next span
                     next = new Span();
                     next.insertAt(col - chars.length(), text, bold);
                 }
             } else if (col == chars.length()) {
+                // Insert at the end of this span
                 if (next != null) {
                     next.insertAt(0, text, bold);
                 } else if (bold == this.bold) {
@@ -166,10 +171,13 @@ public class AnsiConsole implements Visitor {
                     next = new Span(text, bold);
                 }
             } else if (bold == this.bold) {
+                // Overwrite with same attributes
                 int replace = Math.min(text.length(), chars.length() - col);
                 if (replace == text.length()) {
+                    // Replace within this span
                     chars.replace(col, col + text.length(), text);
                 } else {
+                    // Append text to this span and remove from next span
                     chars.setLength(col);
                     chars.append(text);
                     if (next != null) {
@@ -177,23 +185,35 @@ public class AnsiConsole implements Visitor {
                     }
                 }
             } else {
-                // Different attributes
-                if (col + text.length() < chars.length()) {
-                    Span tail = new Span(chars.substring(col + text.length()), this.bold);
+                // Overwrite with different attributes
+                int endPos = col + text.length();
+                if (endPos < chars.length()) {
+                    // Split this span
+                    Span tail = new Span(chars.substring(endPos), this.bold);
                     tail.next = next;
                     Span replaced = new Span(text, bold);
                     replaced.next = tail;
                     chars.setLength(col);
                     next = replaced;
                 } else {
-                    int remove = col + text.length() - chars.length();
-                    chars.setLength(col);
-                    Span replaced = new Span(text, bold);
-                    if (next != null) {
-                        next = next.remove(remove);
+                    // Replace the tail of this span and remove from next span
+                    int remove = endPos - chars.length();
+                    if (col == 0) {
+                        chars.setLength(0);
+                        this.bold = bold;
+                        chars.append(text);
+                        if (next != null) {
+                            next = next.remove(remove);
+                        }
+                    } else {
+                        chars.setLength(col);
+                        Span replaced = new Span(text, bold);
+                        if (next != null) {
+                            next = next.remove(remove);
+                        }
+                        replaced.next = next;
+                        next = replaced;
                     }
-                    replaced.next = next;
-                    next = replaced;
                 }
             }
         }

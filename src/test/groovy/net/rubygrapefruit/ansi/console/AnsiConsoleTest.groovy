@@ -410,6 +410,203 @@ class AnsiConsoleTest extends Specification {
         console.contents(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}  !\n+++"
     }
 
+    def "can overwrite bold text with bold text"() {
+        expect:
+        // Start of span to middle of span
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("1234"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(new Text("++"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}++34{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}++34{bold-off}"
+
+        // Middle of span to end
+        console.visit(new Text("++"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}++++{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}++++{bold-off}"
+
+        // Start of span to end
+        console.visit(new CursorBackward(4))
+        console.visit(new Text("1234"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}1234{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}1234{bold-off}"
+
+        // Append from middle of span
+        console.visit(new CursorBackward(2))
+        console.visit(new Text("...."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}12....{bold-off}"
+    }
+
+    def "can overwrite normal text with bold text"() {
+        expect:
+        // Start of span to middle of span
+        console.visit(new Text("1234"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("++"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}++{bold-off}34"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}++{bold-off}34"
+
+        // Middle of span to end
+        console.visit(BoldOff.INSTANCE)
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.visit(new Text("1234"))
+        console.visit(new CursorBackward(2))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("++"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "12{bold-on}++{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "12{bold-on}++{bold-off}"
+
+        // Start of span to end
+        console.visit(NewLine.INSTANCE)
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("1234"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("++++"))
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}++++{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "12{bold-on}++{bold-off}\n{bold-on}++++{bold-off}"
+
+        // Append from middle of span
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseToEndOfLine.INSTANCE)
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("1234"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new CursorBackward(2))
+        console.visit(new Text("...."))
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "12{bold-on}....{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "12{bold-on}++{bold-off}\n12{bold-on}....{bold-off}"
+    }
+
+    def "can overwrite normal text followed by bold text with bold text"() {
+        expect:
+        // Overwrite whole span
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("..."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}...{bold-off}{bold-on}456{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}...{bold-off}{bold-on}456{bold-off}789"
+
+        // Overwrite from start to middle of span
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseInLine.INSTANCE)
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text(".."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}..{bold-off}3{bold-on}456{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}..{bold-off}3{bold-on}456{bold-off}789"
+
+        // Overwrite from middle to end of span
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseInLine.INSTANCE)
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(new CursorBackward(8))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text(".."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1{bold-on}..{bold-off}{bold-on}456{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "1{bold-on}..{bold-off}{bold-on}456{bold-off}789"
+
+        // Overwrite from middle to middle of next span
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseInLine.INSTANCE)
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(new CursorBackward(8))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("...."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1{bold-on}....{bold-off}{bold-on}6{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "1{bold-on}....{bold-off}{bold-on}6{bold-off}789"
+
+        // Overwrite from start to middle of next span
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseInLine.INSTANCE)
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("....."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}.....{bold-off}{bold-on}6{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}.....{bold-off}{bold-on}6{bold-off}789"
+
+        // Overwrite from middle to end of next span
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseInLine.INSTANCE)
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(new CursorBackward(8))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("....."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1{bold-on}.....{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "1{bold-on}.....{bold-off}789"
+
+        // Overwrite from middle to middle of last span
+        console.visit(CarriageReturn.INSTANCE)
+        console.visit(EraseInLine.INSTANCE)
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(new CursorBackward(8))
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("......."))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1{bold-on}.......{bold-off}9"
+        console.contents(new DiagnosticConsole()).toString() == "1{bold-on}.......{bold-off}9"
+    }
+
+    def "can write bold text beyond end of line"() {
+        expect:
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(new CursorForward(2))
+        console.visit(new Text("456"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}123{bold-off}  {bold-on}456{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}123{bold-off}  {bold-on}456{bold-off}"
+    }
+
+    def "can overwrite bold text with normal text"() {
+        expect:
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("123"))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("456"))
+        console.visit(new CursorBackward(5))
+        console.visit(new Text("+++"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}1{bold-off}+++56"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}1{bold-off}+++56"
+    }
+
     def "can erase to end of line over text with a mix of bold"() {
         expect:
         console.visit(new Text("123"))
