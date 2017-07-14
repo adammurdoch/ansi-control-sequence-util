@@ -29,9 +29,8 @@ This can be used for implementing a terminal emulator or for testing or document
 - `DiagnosticConsole.contents()` should split lines.
 - `AnsiConsole` improvements:
     - Handle foreground colours
-    - Don't generate text attribute resets at end of line when next line has same attributes
     - When replacing tail of span with another span, check whether next span has target attributes already
-    - When overwriting span contents at offset 0 of span, don't generate empty span and maybe merge with previous
+    - When overwriting span contents at offset 0 of span, maybe merge with previous
     - When erasing bold span that is adjacent to non-bold span
 - Add a strongly typed visitor that accepts only text tokens
 - Add a strongly typed visitor that accepts only text and text attribute tokens

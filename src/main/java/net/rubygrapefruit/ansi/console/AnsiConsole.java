@@ -1,5 +1,6 @@
 package net.rubygrapefruit.ansi.console;
 
+import net.rubygrapefruit.ansi.NormalizingVisitor;
 import net.rubygrapefruit.ansi.Visitor;
 import net.rubygrapefruit.ansi.token.*;
 
@@ -79,13 +80,15 @@ public class AnsiConsole implements Visitor {
      * @return the visitor.
      */
     public <T extends Visitor> T contents(T visitor) {
+        NormalizingVisitor normalizingVisitor = NormalizingVisitor.of(visitor);
         for (int i = 0; i < rows.size(); i++) {
             RowImpl row = rows.get(i);
             if (i > 0) {
-                visitor.visit(NewLine.INSTANCE);
+                normalizingVisitor.visit(NewLine.INSTANCE);
             }
-            row.visit(visitor);
+            row.doVisit(normalizingVisitor);
         }
+        normalizingVisitor.endStream();
         return visitor;
     }
 
@@ -126,11 +129,10 @@ public class AnsiConsole implements Visitor {
             if (chars.length() > 0) {
                 if (bold) {
                     visitor.visit(BoldOn.INSTANCE);
-                }
-                visitor.visit(new Text(chars.toString()));
-                if (bold) {
+                } else {
                     visitor.visit(BoldOff.INSTANCE);
                 }
+                visitor.visit(new Text(chars.toString()));
             }
             if (next != null) {
                 next.visit(visitor);
@@ -307,8 +309,14 @@ public class AnsiConsole implements Visitor {
 
         @Override
         public <T extends Visitor> T visit(T visitor) {
-            first.visit(visitor);
+            NormalizingVisitor normalizingVisitor = NormalizingVisitor.of(visitor);
+            doVisit(normalizingVisitor);
+            normalizingVisitor.endStream();
             return visitor;
+        }
+
+        void doVisit(Visitor visitor) {
+            first.visit(visitor);
         }
 
         int insertAt(int col, Token token, boolean bold) {

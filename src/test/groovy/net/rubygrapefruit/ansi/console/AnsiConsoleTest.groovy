@@ -371,7 +371,7 @@ class AnsiConsoleTest extends Specification {
         console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}456{bold-off}"
         console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}+++{bold-off}..."
         console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
-        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}456{bold-off}\n{bold-on}+++{bold-off}...\n123"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}456\n+++{bold-off}...\n123"
     }
 
     def "can overwrite bold text"() {
@@ -384,13 +384,13 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("----"))
         console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}----{bold-off}"
         console.rows[1].visit(new DiagnosticConsole()).toString() == "+++"
-        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}----{bold-off}\n+++"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}----\n{bold-off}+++"
 
         console.visit(new CursorBackward(3))
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("--"))
         console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}-{bold-off}--{bold-on}-{bold-off}"
-        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}-{bold-off}--{bold-on}-{bold-off}\n+++"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}-{bold-off}--{bold-on}-\n{bold-off}+++"
 
         console.visit(new CursorBackward(4))
         console.visit(EraseToEndOfLine.INSTANCE)
@@ -401,7 +401,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("..."))
         console.rows[0].visit(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}"
-        console.contents(new DiagnosticConsole()).toString() == "12    {bold-on}...{bold-off}\n+++"
+        console.contents(new DiagnosticConsole()).toString() == "12    {bold-on}...\n{bold-off}+++"
 
         console.visit(new CursorForward(2))
         console.visit(BoldOff.INSTANCE)
@@ -466,7 +466,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("++++"))
         console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}++++{bold-off}"
-        console.contents(new DiagnosticConsole()).toString() == "12{bold-on}++{bold-off}\n{bold-on}++++{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "12{bold-on}++\n++++{bold-off}"
 
         // Append from middle of span
         console.visit(CarriageReturn.INSTANCE)
@@ -477,7 +477,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(new CursorBackward(2))
         console.visit(new Text("...."))
         console.rows[1].visit(new DiagnosticConsole()).toString() == "12{bold-on}....{bold-off}"
-        console.contents(new DiagnosticConsole()).toString() == "12{bold-on}++{bold-off}\n12{bold-on}....{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "12{bold-on}++\n{bold-off}12{bold-on}....{bold-off}"
     }
 
     def "can overwrite normal text followed by bold text with bold text"() {
@@ -491,8 +491,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(CarriageReturn.INSTANCE)
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("..."))
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}...{bold-off}{bold-on}456{bold-off}789"
-        console.contents(new DiagnosticConsole()).toString() == "{bold-on}...{bold-off}{bold-on}456{bold-off}789"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}...456{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}...456{bold-off}789"
 
         // Overwrite from start to middle of span
         console.visit(CarriageReturn.INSTANCE)
@@ -521,8 +521,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(new CursorBackward(8))
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text(".."))
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "1{bold-on}..{bold-off}{bold-on}456{bold-off}789"
-        console.contents(new DiagnosticConsole()).toString() == "1{bold-on}..{bold-off}{bold-on}456{bold-off}789"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1{bold-on}..456{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "1{bold-on}..456{bold-off}789"
 
         // Overwrite from middle to middle of next span
         console.visit(CarriageReturn.INSTANCE)
@@ -536,8 +536,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(new CursorBackward(8))
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("...."))
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "1{bold-on}....{bold-off}{bold-on}6{bold-off}789"
-        console.contents(new DiagnosticConsole()).toString() == "1{bold-on}....{bold-off}{bold-on}6{bold-off}789"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1{bold-on}....6{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "1{bold-on}....6{bold-off}789"
 
         // Overwrite from start to middle of next span
         console.visit(CarriageReturn.INSTANCE)
@@ -551,8 +551,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(CarriageReturn.INSTANCE)
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("....."))
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}.....{bold-off}{bold-on}6{bold-off}789"
-        console.contents(new DiagnosticConsole()).toString() == "{bold-on}.....{bold-off}{bold-on}6{bold-off}789"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}.....6{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}.....6{bold-off}789"
 
         // Overwrite from middle to end of next span
         console.visit(CarriageReturn.INSTANCE)
