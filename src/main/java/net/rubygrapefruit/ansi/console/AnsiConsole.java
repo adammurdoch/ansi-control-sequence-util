@@ -252,7 +252,7 @@ public class AnsiConsole implements Visitor {
                 }
                 if (bold) {
                     if (col == chars.length()) {
-                        throw new UnsupportedOperationException();
+                        this.bold = false;
                     } else {
                         Span replaced = new Span(chars.substring(col, chars.length()), bold);
                         chars.setLength(col);
@@ -262,11 +262,9 @@ public class AnsiConsole implements Visitor {
                     }
                 }
             } else {
-                if (bold) {
-                    throw new UnsupportedOperationException();
-                }
                 int remove = col - chars.length();
                 chars.setLength(col);
+                bold = false;
                 for (int i = 0; i < col; i++) {
                     chars.setCharAt(i, ' ');
                 }
