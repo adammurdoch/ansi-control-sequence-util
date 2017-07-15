@@ -35,7 +35,7 @@ public class HtmlFormatter implements Visitor {
     public String toHtml() {
         endCurrentSpan();
 
-        return "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='UTF-8'>\n<style>\npre { font-family: monospace; }\n.ansi-bold { font-weight: bold; }\n.ansi-black { color: black; }\n.ansi-red { color: red; }\n.ansi-green { color: green; }\n.ansi-yellow { color: yellow; }\n.ansi-blue { color: blue; }\n.ansi-magenta { color: magenta; }\n.ansi-cyan { color: cyan; }\n.ansi-white { color: white; }\n.ansi-unknown-sequence { color: white; background: red; }\n.ansi-sequence { color: black; background: #c0c0c0; }</style>\n</head>\n<body>\n<pre>" + content + "</pre>\n</body>\n</html>";
+        return "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='UTF-8'>\n<style>\npre { font-family: monospace; }\n.ansi-bold { font-weight: bold; }\n.ansi-black { color: rgb(0,0,0); }\n.ansi-red { color: rgb(194,54,33); }\n.ansi-green { color: rgb(37,188,36); }\n.ansi-yellow { color: rgb(173,173,39); }\n.ansi-blue { color: rgb(73,46,225); }\n.ansi-magenta { color: rgb(211,56,211); }\n.ansi-cyan { color: rgb(51,187,200); }\n.ansi-white { color: rgb(203,204,205); }\n.ansi-unknown-sequence { color: white; background: red; }\n.ansi-sequence { color: black; background: #c0c0c0; }</style>\n</head>\n<body>\n<pre>" + content + "</pre>\n</body>\n</html>";
     }
 
     @Override
