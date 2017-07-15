@@ -925,4 +925,44 @@ class AnsiConsoleTest extends Specification {
         console.rows[0].visit(new DiagnosticConsole()).toString() == "        "
         console.contents(new DiagnosticConsole()).toString() == "        "
     }
+
+    def "can apply foreground color"() {
+        expect:
+        console.visit(new Text("123"))
+        console.visit(new ForegroundColor("red"))
+        console.visit(new Text("456"))
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("+++"))
+        console.visit(new ForegroundColor("green"))
+        console.visit(new Text("..."))
+        console.visit(new ForegroundColor(null))
+        console.visit(new Text("789"))
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("123"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color null}"
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "{foreground-color red}+++{foreground-color null}{foreground-color green}...{foreground-color null}789"
+        console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
+        console.contents(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color null}\n{foreground-color red}+++{foreground-color null}{foreground-color green}...{foreground-color null}789\n123"
+    }
+
+    def "can apply interleaved foreground color and bold text"() {
+        expect:
+        console.visit(new Text("123"))
+        console.visit(new ForegroundColor("red"))
+        console.visit(new Text("456"))
+        console.visit(NewLine.INSTANCE)
+        console.visit(BoldOn.INSTANCE)
+        console.visit(new Text("+++"))
+        console.visit(new ForegroundColor("green"))
+        console.visit(new Text("..."))
+        console.visit(BoldOff.INSTANCE)
+        console.visit(new Text("789"))
+        console.visit(new ForegroundColor(null))
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("123"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color null}"
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}{foreground-color red}+++{foreground-color null}{foreground-color green}...{foreground-color null}{bold-off}{foreground-color green}789{foreground-color null}"
+        console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
+        console.contents(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color null}\n{bold-on}{foreground-color red}+++{foreground-color null}{foreground-color green}...{foreground-color null}{bold-off}{foreground-color green}789{foreground-color null}\n123"
+    }
 }

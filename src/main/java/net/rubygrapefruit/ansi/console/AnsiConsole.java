@@ -6,6 +6,7 @@ import net.rubygrapefruit.ansi.token.*;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple terminal emulator that interprets a stream of {@link Token} instances.
@@ -18,7 +19,7 @@ public class AnsiConsole implements Visitor {
     private final LinkedList<RowImpl> rows = new LinkedList<RowImpl>();
     private int col;
     private int row;
-    private boolean bold;
+    private TextAttributes attributes = TextAttributes.NORMAL;
 
     public AnsiConsole() {
         rows.add(new RowImpl());
@@ -57,11 +58,14 @@ public class AnsiConsole implements Visitor {
         } else if (token instanceof EraseToEndOfLine) {
             rows.get(row).eraseToEnd(col);
         } else if (token instanceof BoldOn) {
-            bold = true;
+            attributes = attributes.boldOn();
         } else if (token instanceof BoldOff) {
-            bold = false;
+            attributes = attributes.boldOff();
+        } else if (token instanceof ForegroundColor) {
+            ForegroundColor color = (ForegroundColor) token;
+            attributes = attributes.color(color.getColorName());
         } else {
-            col = rows.get(row).insertAt(col, token, bold);
+            col = rows.get(row).insertAt(col, token, attributes);
         }
     }
 
@@ -102,22 +106,27 @@ public class AnsiConsole implements Visitor {
     }
 
     private static class Span {
-        private boolean bold;
-        private final StringBuilder chars = new StringBuilder();
+        private final StringBuilder chars;
+        private TextAttributes attributes;
         private Span next;
 
-        Span(String text, boolean bold) {
-            chars.append(text);
-            this.bold = bold;
+        Span(String text, TextAttributes attributes) {
+            this.attributes = attributes;
+            chars = new StringBuilder(text);
         }
 
         Span() {
+            attributes = TextAttributes.NORMAL;
+            chars = new StringBuilder();
         }
 
         void collectDetails(StringBuilder builder) {
             builder.append("{");
-            if (bold) {
+            if (attributes.bold) {
                 builder.append("bold ");
+            }
+            if (attributes.color != null) {
+                builder.append(attributes.color).append(" ");
             }
             builder.append("'").append(chars).append("'}");
             if (next != null) {
@@ -127,52 +136,60 @@ public class AnsiConsole implements Visitor {
 
         void visit(Visitor visitor) {
             if (chars.length() > 0) {
-                if (bold) {
+                if (attributes.bold) {
                     visitor.visit(BoldOn.INSTANCE);
                 } else {
                     visitor.visit(BoldOff.INSTANCE);
                 }
+                if (attributes.color != null) {
+                    visitor.visit(new ForegroundColor(attributes.color));
+                }
                 visitor.visit(new Text(chars.toString()));
+                if (attributes.color != null) {
+                    visitor.visit(new ForegroundColor(null));
+                }
             }
             if (next != null) {
                 next.visit(visitor);
             }
         }
 
-        void insertAt(int col, String text, boolean bold) {
+        void insertAt(int col, String text, TextAttributes attributes) {
             if (col > chars.length()) {
                 // Insert beyond the end of this span
                 if (next != null) {
                     // Insert into next span
-                    next.insertAt(col - chars.length(), text, bold);
-                } else if (!this.bold) {
+                    next.insertAt(col - chars.length(), text, attributes);
+                } else if (this.attributes.equals(TextAttributes.NORMAL)) {
                     // Pad this span
                     while (col > chars.length()) {
                         chars.append(' ');
                     }
-                    if (!bold) {
+                    if (attributes.equals(TextAttributes.NORMAL)) {
                         chars.append(text);
                     } else {
-                        next = new Span(text, true);
+                        next = new Span(text, attributes);
                     }
                 } else {
                     // Add padding as next span
                     next = new Span();
-                    next.insertAt(col - chars.length(), text, bold);
+                    next.insertAt(col - chars.length(), text, attributes);
                 }
             } else if (col == chars.length()) {
                 // Insert at the end of this span
                 if (next != null) {
-                    next.insertAt(0, text, bold);
-                } else if (bold == this.bold) {
-                    chars.append(text);
-                } else if (chars.length() == 0) {
-                    this.bold = bold;
+                    next.insertAt(0, text, attributes);
+                } else if (attributes.equals(this.attributes)) {
                     chars.append(text);
                 } else {
-                    next = new Span(text, bold);
+                    if (chars.length() == 0) {
+                        this.attributes = attributes;
+                        chars.append(text);
+                    } else {
+                        next = new Span(text, attributes);
+                    }
                 }
-            } else if (bold == this.bold) {
+            } else if (attributes.equals(this.attributes)) {
                 // Overwrite with same attributes
                 int replace = Math.min(text.length(), chars.length() - col);
                 if (replace == text.length()) {
@@ -191,9 +208,9 @@ public class AnsiConsole implements Visitor {
                 int endPos = col + text.length();
                 if (endPos < chars.length()) {
                     // Split this span
-                    Span tail = new Span(chars.substring(endPos), this.bold);
+                    Span tail = new Span(chars.substring(endPos), this.attributes);
                     tail.next = next;
-                    Span replaced = new Span(text, bold);
+                    Span replaced = new Span(text, attributes);
                     replaced.next = tail;
                     chars.setLength(col);
                     next = replaced;
@@ -202,14 +219,14 @@ public class AnsiConsole implements Visitor {
                     int remove = endPos - chars.length();
                     if (col == 0) {
                         chars.setLength(0);
-                        this.bold = bold;
+                        this.attributes = attributes;
                         chars.append(text);
                         if (next != null) {
                             next = next.remove(remove);
                         }
                     } else {
                         chars.setLength(col);
-                        Span replaced = new Span(text, bold);
+                        Span replaced = new Span(text, attributes);
                         if (next != null) {
                             next = next.remove(remove);
                         }
@@ -245,7 +262,7 @@ public class AnsiConsole implements Visitor {
                 next = null;
             } else if (next != null) {
                 next.eraseToEnd(col - chars.length());
-            } else if (bold) {
+            } else if (!attributes.equals(TextAttributes.NORMAL)) {
                 next = new Span();
                 next.eraseToEnd(col - chars.length());
             } else {
@@ -256,7 +273,7 @@ public class AnsiConsole implements Visitor {
         }
 
         void erase(int col) {
-            bold = false;
+            attributes = TextAttributes.NORMAL;
             chars.setLength(col);
             for (int i = 0; i < col; i++) {
                 chars.setCharAt(i, ' ');
@@ -272,13 +289,13 @@ public class AnsiConsole implements Visitor {
                 for (int i = 0; i < col; i++) {
                     chars.setCharAt(i, ' ');
                 }
-                if (bold) {
+                if (!attributes.equals(TextAttributes.NORMAL)) {
                     if (col == chars.length()) {
-                        this.bold = false;
+                        attributes = TextAttributes.NORMAL;
                     } else {
-                        Span replaced = new Span(chars.substring(col, chars.length()), bold);
+                        Span replaced = new Span(chars.substring(col, chars.length()), this.attributes);
                         chars.setLength(col);
-                        bold = false;
+                        attributes = TextAttributes.NORMAL;
                         replaced.next = next;
                         next = replaced;
                     }
@@ -286,7 +303,7 @@ public class AnsiConsole implements Visitor {
             } else {
                 int remove = col - chars.length();
                 chars.setLength(col);
-                bold = false;
+                attributes = TextAttributes.NORMAL;
                 for (int i = 0; i < col; i++) {
                     chars.setCharAt(i, ' ');
                 }
@@ -319,10 +336,10 @@ public class AnsiConsole implements Visitor {
             first.visit(visitor);
         }
 
-        int insertAt(int col, Token token, boolean bold) {
+        int insertAt(int col, Token token, TextAttributes attributes) {
             if (token instanceof Text) {
                 Text text = (Text) token;
-                first.insertAt(col, text.getText(), bold);
+                first.insertAt(col, text.getText(), attributes);
                 return col + text.getText().length();
             }
             return col;
@@ -338,6 +355,66 @@ public class AnsiConsole implements Visitor {
 
         void eraseToEnd(int col) {
             first.eraseToEnd(col);
+        }
+    }
+
+    /**
+     * Immutable text attributes.
+     */
+    static class TextAttributes {
+        final boolean bold;
+        final String color;
+
+        static final TextAttributes NORMAL = new TextAttributes(false, null);
+        static final TextAttributes BOLD = new TextAttributes(true, null);
+
+        private TextAttributes(boolean bold, String color) {
+            this.bold = bold;
+            this.color = color;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            TextAttributes other = (TextAttributes) obj;
+            return other.bold == bold && Objects.equals(other.color, color);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(color) ^ (bold ? 31 : 1);
+        }
+
+        TextAttributes boldOn() {
+            if (bold) {
+                return this;
+            }
+            if (color == null) {
+                return BOLD;
+            }
+            return new TextAttributes(true, color);
+        }
+
+        TextAttributes boldOff() {
+            if (!bold) {
+                return this;
+            }
+            if (color == null) {
+                return NORMAL;
+            }
+            return new TextAttributes(false, color);
+        }
+
+        TextAttributes color(String color) {
+            if (Objects.equals(this.color, color)) {
+                return this;
+            }
+            if (color == null && !bold) {
+                return NORMAL;
+            }
+            return new TextAttributes(bold, color);
         }
     }
 }
