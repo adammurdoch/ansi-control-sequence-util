@@ -5,6 +5,8 @@ This can be used for implementing a terminal emulator or for testing or document
 ## TODO
 
 - Handle text attribute control sequences.
+    - Handle background color
+    - Handle bright colors
     - m or 0m: normal/reset
     - <n>m or <n>;<n>m where <n> is: 
         - 0 reset all attributes
@@ -24,14 +26,16 @@ This can be used for implementing a terminal emulator or for testing or document
         - 90 - 97 <x> bold foreground
         - 100 - 107 <x> bold background
 - Render unrecognized control sequences in `AnsiConsole` and `HtmlFormatter` in some highly visible way.
-- Escape text content in `HtmlFormatter`.
-- `HtmlFormatter` should stream to an `OutputStream`.
-- `DiagnosticConsole.contents()` should split lines.
+- `HtmlFormatter` improvements:
+    - Should stream to an `OutputStream`.
+    - Escape text content.
 - `AnsiConsole` improvements:
-    - Handle foreground colours
+    - Support background color: erase should fill with background color?
     - When replacing tail of span with another span, check whether next span has target attributes already
     - When overwriting span contents at offset 0 of span, maybe merge with previous
     - When erasing bold span that is adjacent to non-bold span
+- `DiagnosticConsole` improvements:
+    - `contents()` should split lines.
 - Add a strongly typed visitor that accepts only text tokens
 - Add a strongly typed visitor that accepts only text and text attribute tokens
 
