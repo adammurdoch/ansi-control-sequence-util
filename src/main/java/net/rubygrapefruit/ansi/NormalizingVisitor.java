@@ -2,7 +2,10 @@ package net.rubygrapefruit.ansi;
 
 import net.rubygrapefruit.ansi.token.BoldOff;
 import net.rubygrapefruit.ansi.token.BoldOn;
+import net.rubygrapefruit.ansi.token.ForegroundColor;
 import net.rubygrapefruit.ansi.token.Token;
+
+import java.util.Objects;
 
 /**
  * A {@link Visitor} that normalizes a stream of {@link Token} instances, to remove unnecessary tokens.
@@ -11,6 +14,8 @@ public class NormalizingVisitor implements Visitor {
     private final Visitor visitor;
     private boolean forwardedBold;
     private boolean bold;
+    private String forwardedColor;
+    private String color;
 
     private NormalizingVisitor(Visitor visitor) {
         this.visitor = visitor;
@@ -22,6 +27,9 @@ public class NormalizingVisitor implements Visitor {
             bold = true;
         } else if (token instanceof BoldOff) {
             bold = false;
+        } else if (token instanceof ForegroundColor) {
+            ForegroundColor colorToken = (ForegroundColor) token;
+            color = colorToken.getColorName();
         } else {
             if (bold && !forwardedBold) {
                 visitor.visit(BoldOn.INSTANCE);
@@ -29,6 +37,10 @@ public class NormalizingVisitor implements Visitor {
             } else if (!bold && forwardedBold) {
                 visitor.visit(BoldOff.INSTANCE);
                 forwardedBold = false;
+            }
+            if (!Objects.equals(color, forwardedColor)) {
+                visitor.visit(new ForegroundColor(color));
+                forwardedColor = color;
             }
             visitor.visit(token);
         }
@@ -38,6 +50,10 @@ public class NormalizingVisitor implements Visitor {
         if (forwardedBold) {
             visitor.visit(BoldOff.INSTANCE);
             forwardedBold = false;
+        }
+        if (forwardedColor != null) {
+            visitor.visit(new ForegroundColor(null));
+            forwardedColor = null;
         }
     }
 

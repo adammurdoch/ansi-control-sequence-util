@@ -141,13 +141,8 @@ public class AnsiConsole implements Visitor {
                 } else {
                     visitor.visit(BoldOff.INSTANCE);
                 }
-                if (attributes.color != null) {
-                    visitor.visit(new ForegroundColor(attributes.color));
-                }
+                visitor.visit(new ForegroundColor(attributes.color));
                 visitor.visit(new Text(chars.toString()));
-                if (attributes.color != null) {
-                    visitor.visit(new ForegroundColor(null));
-                }
             }
             if (next != null) {
                 next.visit(visitor);
