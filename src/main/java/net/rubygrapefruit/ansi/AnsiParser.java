@@ -149,67 +149,67 @@ public class AnsiParser {
             return true;
         }
         if (params.equals("30")) {
-            visitor.visit(new ForegroundColor(TextColor.BLACK));
+            visitor.visit(ForegroundColor.of(TextColor.BLACK));
             return true;
         }
         if (params.equals("31")) {
-            visitor.visit(new ForegroundColor(TextColor.RED));
+            visitor.visit(ForegroundColor.of(TextColor.RED));
             return true;
         }
         if (params.equals("32")) {
-            visitor.visit(new ForegroundColor(TextColor.GREEN));
+            visitor.visit(ForegroundColor.of(TextColor.GREEN));
             return true;
         }
         if (params.equals("33")) {
-            visitor.visit(new ForegroundColor(TextColor.YELLOW));
+            visitor.visit(ForegroundColor.of(TextColor.YELLOW));
             return true;
         }
         if (params.equals("34")) {
-            visitor.visit(new ForegroundColor(TextColor.BLUE));
+            visitor.visit(ForegroundColor.of(TextColor.BLUE));
             return true;
         }
         if (params.equals("35")) {
-            visitor.visit(new ForegroundColor(TextColor.MAGENTA));
+            visitor.visit(ForegroundColor.of(TextColor.MAGENTA));
             return true;
         }
         if (params.equals("36")) {
-            visitor.visit(new ForegroundColor(TextColor.CYAN));
+            visitor.visit(ForegroundColor.of(TextColor.CYAN));
             return true;
         }
         if (params.equals("37")) {
-            visitor.visit(new ForegroundColor(TextColor.WHITE));
+            visitor.visit(ForegroundColor.of(TextColor.WHITE));
             return true;
         }
         if (params.equals("90")) {
-            visitor.visit(new ForegroundColor(TextColor.BRIGHT_BLACK));
+            visitor.visit(ForegroundColor.of(TextColor.BRIGHT_BLACK));
             return true;
         }
         if (params.equals("91")) {
-            visitor.visit(new ForegroundColor(TextColor.BRIGHT_RED));
+            visitor.visit(ForegroundColor.of(TextColor.BRIGHT_RED));
             return true;
         }
         if (params.equals("92")) {
-            visitor.visit(new ForegroundColor(TextColor.BRIGHT_GREEN));
+            visitor.visit(ForegroundColor.of(TextColor.BRIGHT_GREEN));
             return true;
         }
         if (params.equals("93")) {
-            visitor.visit(new ForegroundColor(TextColor.BRIGHT_YELLOW));
+            visitor.visit(ForegroundColor.of(TextColor.BRIGHT_YELLOW));
             return true;
         }
         if (params.equals("94")) {
-            visitor.visit(new ForegroundColor(TextColor.BRIGHT_BLUE));
+            visitor.visit(ForegroundColor.of(TextColor.BRIGHT_BLUE));
             return true;
         }
         if (params.equals("95")) {
-            visitor.visit(new ForegroundColor(TextColor.BRIGHT_MAGENTA));
+            visitor.visit(ForegroundColor.of(TextColor.BRIGHT_MAGENTA));
             return true;
         }
         if (params.equals("96")) {
-            visitor.visit(new ForegroundColor(TextColor.BRIGHT_CYAN));
+            visitor.visit(ForegroundColor.of(TextColor.BRIGHT_CYAN));
             return true;
         }
         if (params.equals("97")) {
-            visitor.visit(new ForegroundColor(TextColor.BRIGHT_WHITE));
+            visitor.visit(ForegroundColor.of(TextColor.BRIGHT_WHITE));
             return true;
         }
         return false;

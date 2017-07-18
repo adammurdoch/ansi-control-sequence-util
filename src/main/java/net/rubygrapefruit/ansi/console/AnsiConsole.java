@@ -142,7 +142,7 @@ public class AnsiConsole implements Visitor {
                 } else {
                     visitor.visit(BoldOff.INSTANCE);
                 }
-                visitor.visit(new ForegroundColor(attributes.color));
+                visitor.visit(ForegroundColor.of(attributes.color));
                 visitor.visit(new Text(chars.toString()));
             }
             if (next != null) {

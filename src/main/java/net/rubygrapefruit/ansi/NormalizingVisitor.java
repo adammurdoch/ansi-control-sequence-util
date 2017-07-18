@@ -39,7 +39,7 @@ public class NormalizingVisitor implements Visitor {
                 forwardedBold = false;
             }
             if (!Objects.equals(color, forwardedColor)) {
-                visitor.visit(new ForegroundColor(color));
+                visitor.visit(ForegroundColor.of(color));
                 forwardedColor = color;
             }
             visitor.visit(token);
