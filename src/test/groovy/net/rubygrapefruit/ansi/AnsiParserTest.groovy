@@ -233,6 +233,53 @@ class AnsiParserTest extends Specification {
         "\u001B[97m" | "white"
     }
 
+    def "parses background color control sequence"() {
+        when:
+        def output = parser.newParser("utf-8", visitor)
+        output.write(bytes(sequence))
+
+        then:
+        visitor.tokens.size() == 1
+        visitor.tokens[0] instanceof BackgroundColor
+        visitor.tokens[0].color.name == colour
+        !visitor.tokens[0].color.bright
+
+        where:
+        sequence     | colour
+        "\u001B[40m" | "black"
+        "\u001B[41m" | "red"
+        "\u001B[42m" | "green"
+        "\u001B[43m" | "yellow"
+        "\u001B[44m" | "blue"
+        "\u001B[45m" | "magenta"
+        "\u001B[46m" | "cyan"
+        "\u001B[47m" | "white"
+        "\u001B[49m" | null
+    }
+
+    def "parses high intensity background color control sequence"() {
+        when:
+        def output = parser.newParser("utf-8", visitor)
+        output.write(bytes(sequence))
+
+        then:
+        visitor.tokens.size() == 1
+        visitor.tokens[0] instanceof BackgroundColor
+        visitor.tokens[0].color.name == colour
+        visitor.tokens[0].color.bright
+
+        where:
+        sequence      | colour
+        "\u001B[100m" | "black"
+        "\u001B[101m" | "red"
+        "\u001B[102m" | "green"
+        "\u001B[103m" | "yellow"
+        "\u001B[104m" | "blue"
+        "\u001B[105m" | "magenta"
+        "\u001B[106m" | "cyan"
+        "\u001B[107m" | "white"
+    }
+
     def "parses bold text attribute control sequence"() {
         when:
         def output = parser.newParser("utf-8", visitor)

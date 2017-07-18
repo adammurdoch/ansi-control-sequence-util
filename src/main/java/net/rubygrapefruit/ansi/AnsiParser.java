@@ -212,6 +212,75 @@ public class AnsiParser {
             visitor.visit(ForegroundColor.of(TextColor.BRIGHT_WHITE));
             return true;
         }
+        if (params.equals("40")) {
+            visitor.visit(BackgroundColor.of(TextColor.BLACK));
+            return true;
+        }
+        if (params.equals("41")) {
+            visitor.visit(BackgroundColor.of(TextColor.RED));
+            return true;
+        }
+        if (params.equals("42")) {
+            visitor.visit(BackgroundColor.of(TextColor.GREEN));
+            return true;
+        }
+        if (params.equals("43")) {
+            visitor.visit(BackgroundColor.of(TextColor.YELLOW));
+            return true;
+        }
+        if (params.equals("44")) {
+            visitor.visit(BackgroundColor.of(TextColor.BLUE));
+            return true;
+        }
+        if (params.equals("45")) {
+            visitor.visit(BackgroundColor.of(TextColor.MAGENTA));
+            return true;
+        }
+        if (params.equals("46")) {
+            visitor.visit(BackgroundColor.of(TextColor.CYAN));
+            return true;
+        }
+        if (params.equals("47")) {
+            visitor.visit(BackgroundColor.of(TextColor.WHITE));
+            return true;
+        }
+        if (params.equals("49")) {
+            visitor.visit(BackgroundColor.DEFAULT);
+            return true;
+        }
+        if (params.equals("100")) {
+            visitor.visit(BackgroundColor.of(TextColor.BRIGHT_BLACK));
+            return true;
+        }
+        if (params.equals("101")) {
+            visitor.visit(BackgroundColor.of(TextColor.BRIGHT_RED));
+            return true;
+        }
+        if (params.equals("102")) {
+            visitor.visit(BackgroundColor.of(TextColor.BRIGHT_GREEN));
+            return true;
+        }
+        if (params.equals("103")) {
+            visitor.visit(BackgroundColor.of(TextColor.BRIGHT_YELLOW));
+            return true;
+        }
+        if (params.equals("104")) {
+            visitor.visit(BackgroundColor.of(TextColor.BRIGHT_BLUE));
+            return true;
+        }
+        if (params.equals("105")) {
+            visitor.visit(BackgroundColor.of(TextColor.BRIGHT_MAGENTA));
+            return true;
+        }
+        if (params.equals("106")) {
+            visitor.visit(BackgroundColor.of(TextColor.BRIGHT_CYAN));
+            return true;
+        }
+        if (params.equals("107")) {
+            visitor.visit(BackgroundColor.of(TextColor.BRIGHT_WHITE));
+            return true;
+        }
+
         return false;
     }
 
