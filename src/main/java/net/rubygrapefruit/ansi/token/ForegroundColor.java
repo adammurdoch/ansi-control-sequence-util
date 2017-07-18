@@ -15,10 +15,6 @@ public class ForegroundColor extends Token {
         return color;
     }
 
-    public String getColorName() {
-        return color.getName();
-    }
-
     @Override
     public void appendDiagnostic(StringBuilder builder) {
         builder.append("{foreground-color ");

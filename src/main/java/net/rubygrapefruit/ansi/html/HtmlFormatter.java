@@ -1,5 +1,6 @@
 package net.rubygrapefruit.ansi.html;
 
+import net.rubygrapefruit.ansi.TextColor;
 import net.rubygrapefruit.ansi.Visitor;
 import net.rubygrapefruit.ansi.token.*;
 
@@ -11,14 +12,8 @@ import java.util.Objects;
  * <p>Generates spans with the following classes:</p>
  * <ul>
  *     <li>{@code ansi-bold}: bold text.</li>
- *     <li>{@code ansi-black}: black foreground.</li>
- *     <li>{@code ansi-red}: red foreground.</li>
- *     <li>{@code ansi-green}: green foreground.</li>
- *     <li>{@code ansi-yellow}: yellow foreground.</li>
- *     <li>{@code ansi-blue}: blue foreground.</li>
- *     <li>{@code ansi-magenta}: magenta foreground.</li>
- *     <li>{@code ansi-cyan}: cyan foreground.</li>
- *     <li>{@code ansi-white}: white foreground.</li>
+ *     <li>{@code ansi-<color>}: foreground color.</li>
+ *     <li>{@code ansi-bright-<color>}: bright foreground color.</li>
  *     <li>{@code ansi-sequence}: a sequence that is recognized but not interpreted.</li>
  *     <li>{@code ansi-unknown-sequence}: an unrecognized sequence.</li>
  * </ul>
@@ -26,7 +21,7 @@ import java.util.Objects;
 public class HtmlFormatter implements Visitor {
     private final StringBuilder content = new StringBuilder();
     private boolean bold;
-    private String foreground;
+    private TextColor foreground = TextColor.DEFAULT;
     private boolean spanHasContent;
 
     /**
@@ -35,7 +30,7 @@ public class HtmlFormatter implements Visitor {
     public String toHtml() {
         endCurrentSpan();
 
-        return "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='UTF-8'>\n<style>\npre { font-family: monospace; }\n.ansi-bold { font-weight: bold; }\n.ansi-black { color: rgb(0,0,0); }\n.ansi-red { color: rgb(194,54,33); }\n.ansi-green { color: rgb(37,188,36); }\n.ansi-yellow { color: rgb(173,173,39); }\n.ansi-blue { color: rgb(73,46,225); }\n.ansi-magenta { color: rgb(211,56,211); }\n.ansi-cyan { color: rgb(51,187,200); }\n.ansi-white { color: rgb(203,204,205); }\n.ansi-unknown-sequence { color: white; background: red; }\n.ansi-sequence { color: black; background: #c0c0c0; }</style>\n</head>\n<body>\n<pre>" + content + "</pre>\n</body>\n</html>";
+        return "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='UTF-8'>\n<style>\npre { font-family: monospace; font-size: 11pt; }\n.ansi-bold { font-weight: bold; }\n.ansi-black { color: rgb(0,0,0); }\n.ansi-red { color: rgb(194,54,33); }\n.ansi-green { color: rgb(37,188,36); }\n.ansi-yellow { color: rgb(173,173,39); }\n.ansi-blue { color: rgb(73,46,225); }\n.ansi-magenta { color: rgb(211,56,211); }\n.ansi-cyan { color: rgb(51,187,200); }\n.ansi-white { color: rgb(203,204,205); }\n.ansi-bright-black { color: rgb(129,131,131); }\n.ansi-bright-red { color: rgb(252,57,31); }\n.ansi-bright-green { color: rgb(49,231,34); }\n.ansi-bright-yellow { color: rgb(234,236,35); }\n.ansi-bright-blue { color: rgb(88,51,255); }\n.ansi-bright-magenta { color: rgb(249,53,248); }\n.ansi-bright-cyan { color: rgb(20,240,240); }\n.ansi-bright-white { color: rgb(233, 235, 235); }\n.ansi-unknown-sequence { color: white; background: red; }\n.ansi-sequence { color: black; background: #c0c0c0; }</style>\n</head>\n<body>\n<pre>" + content + "</pre>\n</body>\n</html>";
     }
 
     @Override
@@ -61,11 +56,11 @@ public class HtmlFormatter implements Visitor {
             bold = false;
         } else if (token instanceof ForegroundColor) {
             ForegroundColor foregroundColor = (ForegroundColor) token;
-            if (Objects.equals(foreground, foregroundColor.getColorName())) {
+            if (Objects.equals(foreground, foregroundColor.getColor())) {
                 return;
             }
             endCurrentSpan();
-            foreground = foregroundColor.getColorName();
+            foreground = foregroundColor.getColor();
         } else if (token instanceof UnrecognizedControlSequence) {
             endCurrentSpan();
             content.append("<span class='ansi-unknown-sequence'>");
@@ -80,7 +75,7 @@ public class HtmlFormatter implements Visitor {
     }
 
     private void endCurrentSpan() {
-        if (spanHasContent && (bold || foreground != null)) {
+        if (spanHasContent && (bold || foreground != TextColor.DEFAULT)) {
             content.append("</span>");
         }
         spanHasContent = false;
@@ -88,15 +83,27 @@ public class HtmlFormatter implements Visitor {
 
     private void appendText(String chars) {
         if (!spanHasContent) {
-            if (bold && foreground != null) {
-                content.append("<span class='ansi-bold ansi-").append(foreground).append("'>");
+            if (bold && foreground != TextColor.DEFAULT) {
+                content.append("<span class='ansi-bold ");
+                appendColorStyle(content, foreground);
+                content.append("'>");
             } else if (bold) {
                 content.append("<span class='ansi-bold'>");
-            } else if (foreground != null) {
-                content.append("<span class='ansi-").append(foreground).append("'>");
+            } else if (foreground != TextColor.DEFAULT) {
+                content.append("<span class='");
+                appendColorStyle(content, foreground);
+                content.append("'>");
             }
         }
         content.append(chars);
         spanHasContent = true;
+    }
+
+    private void appendColorStyle(StringBuilder content, TextColor foreground) {
+        content.append("ansi-");
+        if (foreground.isBright()) {
+            content.append("bright-");
+        }
+        content.append(foreground.getName());
     }
 }

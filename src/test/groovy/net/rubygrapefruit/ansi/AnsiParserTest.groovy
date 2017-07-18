@@ -161,10 +161,10 @@ class AnsiParserTest extends Specification {
         then:
         visitor.tokens.size() == 13
         visitor.tokens[0] instanceof ForegroundColor
-        visitor.tokens[0].colorName == null
+        visitor.tokens[0].color == TextColor.DEFAULT
         visitor.tokens[1] instanceof BoldOff
         visitor.tokens[2] instanceof ForegroundColor
-        visitor.tokens[2].colorName == null
+        visitor.tokens[2].color == TextColor.DEFAULT
         visitor.tokens[3] instanceof BoldOff
         visitor.tokens[4] instanceof UnrecognizedControlSequence
         visitor.tokens[4].sequence == "[2m"
@@ -194,7 +194,8 @@ class AnsiParserTest extends Specification {
         then:
         visitor.tokens.size() == 1
         visitor.tokens[0] instanceof ForegroundColor
-        visitor.tokens[0].colorName == colour
+        visitor.tokens[0].color.name == colour
+        !visitor.tokens[0].color.bright
 
         where:
         sequence     | colour
@@ -255,21 +256,21 @@ class AnsiParserTest extends Specification {
         then:
         visitor.tokens.size() == 11
         visitor.tokens[0] instanceof ForegroundColor
-        visitor.tokens[0].colorName == null
+        visitor.tokens[0].color == TextColor.DEFAULT
         visitor.tokens[1] instanceof BoldOff
         visitor.tokens[2] instanceof ForegroundColor
-        visitor.tokens[2].colorName == "red"
+        visitor.tokens[2].color == TextColor.RED
         visitor.tokens[3] instanceof ForegroundColor
-        visitor.tokens[3].colorName == "green"
+        visitor.tokens[3].color == TextColor.GREEN
         visitor.tokens[4] instanceof BoldOn
         visitor.tokens[5] instanceof ForegroundColor
-        visitor.tokens[5].colorName == null
+        visitor.tokens[5].color == TextColor.DEFAULT
         visitor.tokens[6] instanceof BoldOff
         visitor.tokens[7] instanceof BoldOff
         visitor.tokens[8] instanceof ForegroundColor
-        visitor.tokens[8].colorName == null
+        visitor.tokens[8].color == TextColor.DEFAULT
         visitor.tokens[9] instanceof ForegroundColor
-        visitor.tokens[9].colorName == "green"
+        visitor.tokens[9].color == TextColor.GREEN
         visitor.tokens[10] instanceof BoldOn
     }
 
