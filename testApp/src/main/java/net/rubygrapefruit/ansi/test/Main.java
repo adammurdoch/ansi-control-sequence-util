@@ -73,6 +73,16 @@ public class Main {
         String blueBackground = "\u001B[44m";
         System.out.write(("\n\n" + cursorUp2 + "normal     " + boldOn + "bold" + boldOff + cursorDown2 + "\r" + red + "red        " + boldOn + "bold red" + cursorBack20 + cursorUp1 + highBlack + "high black " + boldOn + "bold high black\n\n" + white + blueBackground + "white on blue    " + cursorBack4 + eraseToEndLine +
             reset + "\n\n").getBytes(utf8));
+        System.out.write("\u001B[30mblack    \u001B[1mbold    \u001B[22;90mbright    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
+        System.out.write("\u001B[31mred      \u001B[1mbold    \u001B[22;91mbright    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
+        System.out.write("\u001B[32mgreen    \u001B[1mbold    \u001B[22;92mbright    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
+        System.out.write("\u001B[33myellow   \u001B[1mbold    \u001B[22;93mbright    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
+        System.out.write("\u001B[34mblue     \u001B[1mbold    \u001B[22;94mbright    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
+        System.out.write("\u001B[35mmagenta  \u001B[1mbold    \u001B[22;95mbright    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
+        System.out.write("\u001B[36mcyan     \u001B[1mbold    \u001B[22;96mbright    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
+        System.out.write("\u001B[37mwhite    \u001B[1mbold    \u001B[22;97mbright    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
+        System.out.write("\u001B[38;5;160;48;5;250m256      \u001B[1mbold                  \u001B[0m\n".getBytes(utf8));
+//        System.out.write("\u001B[38;2;160;45;12mrgb    \u001B[1mbold\u001B[0m\n".getBytes(utf8));
         System.out.write((reset + "\n").getBytes(utf8));
     }
 }
