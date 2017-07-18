@@ -215,10 +215,10 @@ class AnsiParserTest extends Specification {
         output.write(bytes(sequence))
 
         then:
-        visitor.tokens.size() == 2
+        visitor.tokens.size() == 1
         visitor.tokens[0] instanceof ForegroundColor
-        visitor.tokens[0].colorName == colour
-        visitor.tokens[1] instanceof BoldOn
+        visitor.tokens[0].color.name == colour
+        visitor.tokens[0].color.bright
 
         where:
         sequence     | colour

@@ -14,8 +14,8 @@ public class NormalizingVisitor implements Visitor {
     private final Visitor visitor;
     private boolean forwardedBold;
     private boolean bold;
-    private String forwardedColor;
-    private String color;
+    private TextColor forwardedColor = TextColor.DEFAULT;
+    private TextColor color = TextColor.DEFAULT;
 
     private NormalizingVisitor(Visitor visitor) {
         this.visitor = visitor;
@@ -29,7 +29,7 @@ public class NormalizingVisitor implements Visitor {
             bold = false;
         } else if (token instanceof ForegroundColor) {
             ForegroundColor colorToken = (ForegroundColor) token;
-            color = colorToken.getColorName();
+            color = colorToken.getColor();
         } else {
             if (bold && !forwardedBold) {
                 visitor.visit(BoldOn.INSTANCE);
@@ -51,8 +51,8 @@ public class NormalizingVisitor implements Visitor {
             visitor.visit(BoldOff.INSTANCE);
             forwardedBold = false;
         }
-        if (forwardedColor != null) {
-            visitor.visit(new ForegroundColor(null));
+        if (forwardedColor != TextColor.DEFAULT) {
+            visitor.visit(ForegroundColor.DEFAULT);
             forwardedColor = null;
         }
     }

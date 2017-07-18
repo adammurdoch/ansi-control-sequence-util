@@ -95,7 +95,7 @@ public class AnsiParser {
         }
         if (code == 'm') {
             if (params.isEmpty()) {
-                visitor.visit(new ForegroundColor(null));
+                visitor.visit(ForegroundColor.DEFAULT);
                 visitor.visit(BoldOff.INSTANCE);
                 return true;
             }
@@ -132,7 +132,7 @@ public class AnsiParser {
 
     private static boolean parseTextAttribute(String params, Visitor visitor) {
         if (params.equals("0")) {
-            visitor.visit(new ForegroundColor(null));
+            visitor.visit(ForegroundColor.DEFAULT);
             visitor.visit(BoldOff.INSTANCE);
             return true;
         }
@@ -145,79 +145,71 @@ public class AnsiParser {
             return true;
         }
         if (params.equals("39")) {
-            visitor.visit(new ForegroundColor(null));
+            visitor.visit(ForegroundColor.DEFAULT);
             return true;
         }
         if (params.equals("30")) {
-            visitor.visit(new ForegroundColor("black"));
+            visitor.visit(new ForegroundColor(TextColor.BLACK));
             return true;
         }
         if (params.equals("31")) {
-            visitor.visit(new ForegroundColor("red"));
+            visitor.visit(new ForegroundColor(TextColor.RED));
             return true;
         }
         if (params.equals("32")) {
-            visitor.visit(new ForegroundColor("green"));
+            visitor.visit(new ForegroundColor(TextColor.GREEN));
             return true;
         }
         if (params.equals("33")) {
-            visitor.visit(new ForegroundColor("yellow"));
+            visitor.visit(new ForegroundColor(TextColor.YELLOW));
             return true;
         }
         if (params.equals("34")) {
-            visitor.visit(new ForegroundColor("blue"));
+            visitor.visit(new ForegroundColor(TextColor.BLUE));
             return true;
         }
         if (params.equals("35")) {
-            visitor.visit(new ForegroundColor("magenta"));
+            visitor.visit(new ForegroundColor(TextColor.MAGENTA));
             return true;
         }
         if (params.equals("36")) {
-            visitor.visit(new ForegroundColor("cyan"));
+            visitor.visit(new ForegroundColor(TextColor.CYAN));
             return true;
         }
         if (params.equals("37")) {
-            visitor.visit(new ForegroundColor("white"));
+            visitor.visit(new ForegroundColor(TextColor.WHITE));
             return true;
         }
         if (params.equals("90")) {
-            visitor.visit(new ForegroundColor("black"));
-            visitor.visit(BoldOn.INSTANCE);
+            visitor.visit(new ForegroundColor(TextColor.BRIGHT_BLACK));
             return true;
         }
         if (params.equals("91")) {
-            visitor.visit(new ForegroundColor("red"));
-            visitor.visit(BoldOn.INSTANCE);
+            visitor.visit(new ForegroundColor(TextColor.BRIGHT_RED));
             return true;
         }
         if (params.equals("92")) {
-            visitor.visit(new ForegroundColor("green"));
-            visitor.visit(BoldOn.INSTANCE);
+            visitor.visit(new ForegroundColor(TextColor.BRIGHT_GREEN));
             return true;
         }
         if (params.equals("93")) {
-            visitor.visit(new ForegroundColor("yellow"));
-            visitor.visit(BoldOn.INSTANCE);
+            visitor.visit(new ForegroundColor(TextColor.BRIGHT_YELLOW));
             return true;
         }
         if (params.equals("94")) {
-            visitor.visit(new ForegroundColor("blue"));
-            visitor.visit(BoldOn.INSTANCE);
+            visitor.visit(new ForegroundColor(TextColor.BRIGHT_BLUE));
             return true;
         }
         if (params.equals("95")) {
-            visitor.visit(new ForegroundColor("magenta"));
-            visitor.visit(BoldOn.INSTANCE);
+            visitor.visit(new ForegroundColor(TextColor.BRIGHT_MAGENTA));
             return true;
         }
         if (params.equals("96")) {
-            visitor.visit(new ForegroundColor("cyan"));
-            visitor.visit(BoldOn.INSTANCE);
+            visitor.visit(new ForegroundColor(TextColor.BRIGHT_CYAN));
             return true;
         }
         if (params.equals("97")) {
-            visitor.visit(new ForegroundColor("white"));
-            visitor.visit(BoldOn.INSTANCE);
+            visitor.visit(new ForegroundColor(TextColor.BRIGHT_WHITE));
             return true;
         }
         return false;

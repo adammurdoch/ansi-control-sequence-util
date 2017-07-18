@@ -1,12 +1,7 @@
 package net.rubygrapefruit.ansi
 
 import net.rubygrapefruit.ansi.console.DiagnosticConsole
-import net.rubygrapefruit.ansi.token.BoldOff
-import net.rubygrapefruit.ansi.token.BoldOn
-import net.rubygrapefruit.ansi.token.CursorBackward
-import net.rubygrapefruit.ansi.token.ForegroundColor
-import net.rubygrapefruit.ansi.token.NewLine
-import net.rubygrapefruit.ansi.token.Text
+import net.rubygrapefruit.ansi.token.*
 import spock.lang.Specification
 
 class NormalizingVisitorTest extends Specification {
@@ -73,7 +68,7 @@ class NormalizingVisitorTest extends Specification {
 
     def "defers sending foreground color change until required"() {
         expect:
-        visitor.visit(new ForegroundColor("red"))
+        visitor.visit(new ForegroundColor(TextColor.RED))
         target.toString() == ""
 
         visitor.visit(NewLine.INSTANCE)
@@ -82,7 +77,7 @@ class NormalizingVisitorTest extends Specification {
         visitor.visit(new Text("123"))
         target.toString() == "{foreground-color red}\n123"
 
-        visitor.visit(new ForegroundColor(null))
+        visitor.visit(new ForegroundColor(TextColor.DEFAULT))
         target.toString() == "{foreground-color red}\n123"
 
         visitor.visit(new Text("456"))
@@ -91,8 +86,8 @@ class NormalizingVisitorTest extends Specification {
 
     def "does not forward foreground color change for span that contains no text"() {
         expect:
-        visitor.visit(new ForegroundColor("red"))
-        visitor.visit(new ForegroundColor(null))
+        visitor.visit(new ForegroundColor(TextColor.RED))
+        visitor.visit(new ForegroundColor(TextColor.DEFAULT))
         target.toString() == ""
 
         visitor.visit(NewLine.INSTANCE)
@@ -101,9 +96,9 @@ class NormalizingVisitorTest extends Specification {
         visitor.visit(new Text("123"))
         target.toString() == "\n123"
 
-        visitor.visit(new ForegroundColor("green"))
+        visitor.visit(new ForegroundColor(TextColor.GREEN))
         visitor.visit(new ForegroundColor(null))
-        visitor.visit(new ForegroundColor("red"))
+        visitor.visit(new ForegroundColor(TextColor.RED))
         visitor.visit(new Text("456"))
 
         target.toString() == "\n123{foreground-color red}456"
@@ -111,18 +106,18 @@ class NormalizingVisitorTest extends Specification {
 
     def "does not forward duplicate foreground color change"() {
         expect:
-        visitor.visit(new ForegroundColor("red"))
-        visitor.visit(new ForegroundColor("red"))
+        visitor.visit(new ForegroundColor(TextColor.RED))
+        visitor.visit(new ForegroundColor(TextColor.RED))
         target.toString() == ""
 
         visitor.visit(NewLine.INSTANCE)
         target.toString() == "{foreground-color red}\n"
 
-        visitor.visit(new ForegroundColor("red"))
+        visitor.visit(new ForegroundColor(TextColor.RED))
         visitor.visit(new Text("123"))
         target.toString() == "{foreground-color red}\n123"
 
-        visitor.visit(new ForegroundColor("red"))
+        visitor.visit(new ForegroundColor(TextColor.RED))
         visitor.visit(new CursorBackward(3))
         visitor.visit(new ForegroundColor(null))
 
@@ -132,7 +127,7 @@ class NormalizingVisitorTest extends Specification {
     def "resets text attributes on end"() {
         expect:
         visitor.visit(BoldOn.INSTANCE)
-        visitor.visit(new ForegroundColor("red"))
+        visitor.visit(new ForegroundColor(TextColor.RED))
         visitor.visit(new Text("123"))
         visitor.endStream()
 
@@ -142,7 +137,7 @@ class NormalizingVisitorTest extends Specification {
     def "does not reset on end for deferred changes"() {
         expect:
         visitor.visit(BoldOn.INSTANCE)
-        visitor.visit(new ForegroundColor("red"))
+        visitor.visit(new ForegroundColor(TextColor.RED))
         visitor.endStream()
 
         target.toString() == ""

@@ -1,5 +1,6 @@
 package net.rubygrapefruit.ansi.console
 
+import net.rubygrapefruit.ansi.TextColor
 import net.rubygrapefruit.ansi.token.*
 import spock.lang.Specification
 
@@ -929,13 +930,13 @@ class AnsiConsoleTest extends Specification {
     def "can apply foreground color"() {
         expect:
         console.visit(new Text("123"))
-        console.visit(new ForegroundColor("red"))
+        console.visit(new ForegroundColor(TextColor.RED))
         console.visit(new Text("456"))
         console.visit(NewLine.INSTANCE)
         console.visit(new Text("+++"))
-        console.visit(new ForegroundColor("green"))
+        console.visit(new ForegroundColor(TextColor.GREEN))
         console.visit(new Text("..."))
-        console.visit(new ForegroundColor(null))
+        console.visit(new ForegroundColor(TextColor.DEFAULT))
         console.visit(new Text("789"))
         console.visit(NewLine.INSTANCE)
         console.visit(new Text("123"))
@@ -948,16 +949,16 @@ class AnsiConsoleTest extends Specification {
     def "can apply interleaved foreground color and bold text"() {
         expect:
         console.visit(new Text("123"))
-        console.visit(new ForegroundColor("red"))
+        console.visit(new ForegroundColor(TextColor.RED))
         console.visit(new Text("456"))
         console.visit(NewLine.INSTANCE)
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("+++"))
-        console.visit(new ForegroundColor("green"))
+        console.visit(new ForegroundColor(TextColor.GREEN))
         console.visit(new Text("..."))
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("789"))
-        console.visit(new ForegroundColor(null))
+        console.visit(new ForegroundColor(TextColor.DEFAULT))
         console.visit(NewLine.INSTANCE)
         console.visit(new Text("123"))
         console.rows[0].visit(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color null}"

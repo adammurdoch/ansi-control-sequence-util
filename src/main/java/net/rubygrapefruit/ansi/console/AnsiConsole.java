@@ -1,6 +1,7 @@
 package net.rubygrapefruit.ansi.console;
 
 import net.rubygrapefruit.ansi.NormalizingVisitor;
+import net.rubygrapefruit.ansi.TextColor;
 import net.rubygrapefruit.ansi.Visitor;
 import net.rubygrapefruit.ansi.token.*;
 
@@ -63,7 +64,7 @@ public class AnsiConsole implements Visitor {
             attributes = attributes.boldOff();
         } else if (token instanceof ForegroundColor) {
             ForegroundColor color = (ForegroundColor) token;
-            attributes = attributes.color(color.getColorName());
+            attributes = attributes.color(color.getColor());
         } else {
             col = rows.get(row).insertAt(col, token, attributes);
         }
@@ -358,12 +359,12 @@ public class AnsiConsole implements Visitor {
      */
     static class TextAttributes {
         final boolean bold;
-        final String color;
+        final TextColor color;
 
-        static final TextAttributes NORMAL = new TextAttributes(false, null);
-        static final TextAttributes BOLD = new TextAttributes(true, null);
+        static final TextAttributes NORMAL = new TextAttributes(false, TextColor.DEFAULT);
+        static final TextAttributes BOLD = new TextAttributes(true, TextColor.DEFAULT);
 
-        private TextAttributes(boolean bold, String color) {
+        private TextAttributes(boolean bold, TextColor color) {
             this.bold = bold;
             this.color = color;
         }
@@ -386,7 +387,7 @@ public class AnsiConsole implements Visitor {
             if (bold) {
                 return this;
             }
-            if (color == null) {
+            if (color == TextColor.DEFAULT) {
                 return BOLD;
             }
             return new TextAttributes(true, color);
@@ -396,17 +397,17 @@ public class AnsiConsole implements Visitor {
             if (!bold) {
                 return this;
             }
-            if (color == null) {
+            if (color == TextColor.DEFAULT) {
                 return NORMAL;
             }
             return new TextAttributes(false, color);
         }
 
-        TextAttributes color(String color) {
+        TextAttributes color(TextColor color) {
             if (Objects.equals(this.color, color)) {
                 return this;
             }
-            if (color == null && !bold) {
+            if (color == TextColor.DEFAULT && !bold) {
                 return NORMAL;
             }
             return new TextAttributes(bold, color);
