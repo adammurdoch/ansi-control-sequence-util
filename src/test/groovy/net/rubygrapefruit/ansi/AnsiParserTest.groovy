@@ -159,31 +159,35 @@ class AnsiParserTest extends Specification {
         output.write(bytes("\u001B[1;1;;22m"))
 
         then:
-        visitor.tokens.size() == 13
+        visitor.tokens.size() == 15
         visitor.tokens[0] instanceof ForegroundColor
         visitor.tokens[0].color == TextColor.DEFAULT
-        visitor.tokens[1] instanceof BoldOff
-        visitor.tokens[2] instanceof ForegroundColor
-        visitor.tokens[2].color == TextColor.DEFAULT
-        visitor.tokens[3] instanceof BoldOff
-        visitor.tokens[4] instanceof UnrecognizedControlSequence
-        visitor.tokens[4].sequence == "[2m"
-        visitor.tokens[5] instanceof UnrecognizedControlSequence
-        visitor.tokens[5].sequence == "[99m"
+        visitor.tokens[1] instanceof BackgroundColor
+        visitor.tokens[1].color == TextColor.DEFAULT
+        visitor.tokens[2] instanceof BoldOff
+        visitor.tokens[3] instanceof ForegroundColor
+        visitor.tokens[3].color == TextColor.DEFAULT
+        visitor.tokens[4] instanceof BackgroundColor
+        visitor.tokens[4].color == TextColor.DEFAULT
+        visitor.tokens[5] instanceof BoldOff
         visitor.tokens[6] instanceof UnrecognizedControlSequence
-        visitor.tokens[6].sequence == "[0;2m"
+        visitor.tokens[6].sequence == "[2m"
         visitor.tokens[7] instanceof UnrecognizedControlSequence
-        visitor.tokens[7].sequence == "[99;0m"
+        visitor.tokens[7].sequence == "[99m"
         visitor.tokens[8] instanceof UnrecognizedControlSequence
-        visitor.tokens[8].sequence == "[;0m"
+        visitor.tokens[8].sequence == "[0;2m"
         visitor.tokens[9] instanceof UnrecognizedControlSequence
-        visitor.tokens[9].sequence == "[0;m"
+        visitor.tokens[9].sequence == "[99;0m"
         visitor.tokens[10] instanceof UnrecognizedControlSequence
-        visitor.tokens[10].sequence == "[;m"
+        visitor.tokens[10].sequence == "[;0m"
         visitor.tokens[11] instanceof UnrecognizedControlSequence
-        visitor.tokens[11].sequence == "[;;;;m"
+        visitor.tokens[11].sequence == "[0;m"
         visitor.tokens[12] instanceof UnrecognizedControlSequence
-        visitor.tokens[12].sequence == "[1;1;;22m"
+        visitor.tokens[12].sequence == "[;m"
+        visitor.tokens[13] instanceof UnrecognizedControlSequence
+        visitor.tokens[13].sequence == "[;;;;m"
+        visitor.tokens[14] instanceof UnrecognizedControlSequence
+        visitor.tokens[14].sequence == "[1;1;;22m"
     }
 
     def "parses foreground color control sequence"() {
@@ -301,24 +305,26 @@ class AnsiParserTest extends Specification {
         output.write(bytes("\u001B[22;39;32;1m"))
 
         then:
-        visitor.tokens.size() == 11
+        visitor.tokens.size() == 12
         visitor.tokens[0] instanceof ForegroundColor
         visitor.tokens[0].color == TextColor.DEFAULT
-        visitor.tokens[1] instanceof BoldOff
-        visitor.tokens[2] instanceof ForegroundColor
-        visitor.tokens[2].color == TextColor.RED
+        visitor.tokens[1] instanceof BackgroundColor
+        visitor.tokens[1].color == TextColor.DEFAULT
+        visitor.tokens[2] instanceof BoldOff
         visitor.tokens[3] instanceof ForegroundColor
-        visitor.tokens[3].color == TextColor.GREEN
-        visitor.tokens[4] instanceof BoldOn
-        visitor.tokens[5] instanceof ForegroundColor
-        visitor.tokens[5].color == TextColor.DEFAULT
-        visitor.tokens[6] instanceof BoldOff
+        visitor.tokens[3].color == TextColor.RED
+        visitor.tokens[4] instanceof ForegroundColor
+        visitor.tokens[4].color == TextColor.GREEN
+        visitor.tokens[5] instanceof BoldOn
+        visitor.tokens[6] instanceof ForegroundColor
+        visitor.tokens[6].color == TextColor.DEFAULT
         visitor.tokens[7] instanceof BoldOff
-        visitor.tokens[8] instanceof ForegroundColor
-        visitor.tokens[8].color == TextColor.DEFAULT
+        visitor.tokens[8] instanceof BoldOff
         visitor.tokens[9] instanceof ForegroundColor
-        visitor.tokens[9].color == TextColor.GREEN
-        visitor.tokens[10] instanceof BoldOn
+        visitor.tokens[9].color == TextColor.DEFAULT
+        visitor.tokens[10] instanceof ForegroundColor
+        visitor.tokens[10].color == TextColor.GREEN
+        visitor.tokens[11] instanceof BoldOn
     }
 
     @Unroll

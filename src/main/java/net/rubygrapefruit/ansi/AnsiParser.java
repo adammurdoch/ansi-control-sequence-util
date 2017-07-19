@@ -96,6 +96,7 @@ public class AnsiParser {
         if (code == 'm') {
             if (params.isEmpty()) {
                 visitor.visit(ForegroundColor.DEFAULT);
+                visitor.visit(BackgroundColor.DEFAULT);
                 visitor.visit(BoldOff.INSTANCE);
                 return true;
             }
@@ -133,6 +134,7 @@ public class AnsiParser {
     private static boolean parseTextAttribute(String params, Visitor visitor) {
         if (params.equals("0")) {
             visitor.visit(ForegroundColor.DEFAULT);
+            visitor.visit(BackgroundColor.DEFAULT);
             visitor.visit(BoldOff.INSTANCE);
             return true;
         }
