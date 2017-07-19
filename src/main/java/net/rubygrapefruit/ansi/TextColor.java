@@ -27,6 +27,10 @@ public class TextColor {
         this.bright = bright;
     }
 
+    public boolean isDefault() {
+        return this == DEFAULT;
+    }
+
     public String getName() {
         return name;
     }

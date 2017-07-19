@@ -124,20 +124,80 @@ class NormalizingVisitorTest extends Specification {
         target.toString() == "{foreground-color red}\n123{cursor-backward 3}"
     }
 
+    def "defers sending background color change until required"() {
+        expect:
+        visitor.visit(BackgroundColor.of(TextColor.RED))
+        target.toString() == ""
+
+        visitor.visit(NewLine.INSTANCE)
+        target.toString() == "{background-color red}\n"
+
+        visitor.visit(new Text("123"))
+        target.toString() == "{background-color red}\n123"
+
+        visitor.visit(BackgroundColor.of(TextColor.DEFAULT))
+        target.toString() == "{background-color red}\n123"
+
+        visitor.visit(new Text("456"))
+        target.toString() == "{background-color red}\n123{background-color null}456"
+    }
+
+    def "does not forward background color change for span that contains no text"() {
+        expect:
+        visitor.visit(BackgroundColor.of(TextColor.RED))
+        visitor.visit(BackgroundColor.of(TextColor.DEFAULT))
+        target.toString() == ""
+
+        visitor.visit(NewLine.INSTANCE)
+        target.toString() == "\n"
+
+        visitor.visit(new Text("123"))
+        target.toString() == "\n123"
+
+        visitor.visit(BackgroundColor.of(TextColor.GREEN))
+        visitor.visit(BackgroundColor.of(null))
+        visitor.visit(BackgroundColor.of(TextColor.RED))
+        visitor.visit(new Text("456"))
+
+        target.toString() == "\n123{background-color red}456"
+    }
+
+    def "does not forward duplicate background color change"() {
+        expect:
+        visitor.visit(BackgroundColor.of(TextColor.RED))
+        visitor.visit(BackgroundColor.of(TextColor.RED))
+        target.toString() == ""
+
+        visitor.visit(NewLine.INSTANCE)
+        target.toString() == "{background-color red}\n"
+
+        visitor.visit(BackgroundColor.of(TextColor.RED))
+        visitor.visit(new Text("123"))
+        target.toString() == "{background-color red}\n123"
+
+        visitor.visit(BackgroundColor.of(TextColor.RED))
+        visitor.visit(new CursorBackward(3))
+        visitor.visit(BackgroundColor.of(null))
+
+        target.toString() == "{background-color red}\n123{cursor-backward 3}"
+    }
+
     def "resets text attributes on end"() {
         expect:
         visitor.visit(BoldOn.INSTANCE)
-        visitor.visit(new ForegroundColor(TextColor.RED))
+        visitor.visit(ForegroundColor.of(TextColor.RED))
+        visitor.visit(BackgroundColor.of(TextColor.WHITE))
         visitor.visit(new Text("123"))
         visitor.endStream()
 
-        target.toString() == "{bold-on}{foreground-color red}123{bold-off}{foreground-color null}"
+        target.toString() == "{bold-on}{foreground-color red}{background-color white}123{bold-off}{foreground-color null}{background-color null}"
     }
 
     def "does not reset on end for deferred changes"() {
         expect:
         visitor.visit(BoldOn.INSTANCE)
-        visitor.visit(new ForegroundColor(TextColor.RED))
+        visitor.visit(ForegroundColor.of(TextColor.RED))
+        visitor.visit(BackgroundColor.of(TextColor.BLACK))
         visitor.endStream()
 
         target.toString() == ""

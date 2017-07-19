@@ -1,11 +1,6 @@
 package net.rubygrapefruit.ansi;
 
-import net.rubygrapefruit.ansi.token.BoldOff;
-import net.rubygrapefruit.ansi.token.BoldOn;
-import net.rubygrapefruit.ansi.token.ForegroundColor;
-import net.rubygrapefruit.ansi.token.Token;
-
-import java.util.Objects;
+import net.rubygrapefruit.ansi.token.*;
 
 /**
  * A {@link Visitor} that normalizes a stream of {@link Token} instances, to remove unnecessary tokens.
@@ -16,6 +11,8 @@ public class NormalizingVisitor implements Visitor {
     private boolean bold;
     private TextColor forwardedColor = TextColor.DEFAULT;
     private TextColor color = TextColor.DEFAULT;
+    private TextColor forwardedBackground = TextColor.DEFAULT;
+    private TextColor background = TextColor.DEFAULT;
 
     private NormalizingVisitor(Visitor visitor) {
         this.visitor = visitor;
@@ -30,6 +27,9 @@ public class NormalizingVisitor implements Visitor {
         } else if (token instanceof ForegroundColor) {
             ForegroundColor colorToken = (ForegroundColor) token;
             color = colorToken.getColor();
+        } else if (token instanceof BackgroundColor) {
+            BackgroundColor colorToken = (BackgroundColor) token;
+            background = colorToken.getColor();
         } else {
             if (bold && !forwardedBold) {
                 visitor.visit(BoldOn.INSTANCE);
@@ -38,9 +38,13 @@ public class NormalizingVisitor implements Visitor {
                 visitor.visit(BoldOff.INSTANCE);
                 forwardedBold = false;
             }
-            if (!Objects.equals(color, forwardedColor)) {
+            if (!color.equals(forwardedColor)) {
                 visitor.visit(ForegroundColor.of(color));
                 forwardedColor = color;
+            }
+            if (!background.equals(forwardedBackground)) {
+                visitor.visit(BackgroundColor.of(background));
+                forwardedBackground = background;
             }
             visitor.visit(token);
         }
@@ -51,9 +55,13 @@ public class NormalizingVisitor implements Visitor {
             visitor.visit(BoldOff.INSTANCE);
             forwardedBold = false;
         }
-        if (forwardedColor != TextColor.DEFAULT) {
+        if (!forwardedColor.isDefault()) {
             visitor.visit(ForegroundColor.DEFAULT);
             forwardedColor = null;
+        }
+        if (!forwardedBackground.isDefault()) {
+            visitor.visit(BackgroundColor.DEFAULT);
+            forwardedBackground = null;
         }
     }
 

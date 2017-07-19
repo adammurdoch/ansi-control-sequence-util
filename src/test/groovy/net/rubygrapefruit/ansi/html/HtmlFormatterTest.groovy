@@ -49,11 +49,11 @@ class HtmlFormatterTest extends Specification {
     def "formats foreground color"() {
         expect:
         formatter.visit(new Text("123"))
-        formatter.visit(new ForegroundColor(TextColor.RED))
+        formatter.visit(ForegroundColor.of(TextColor.RED))
         formatter.visit(new Text("456"))
-        formatter.visit(new ForegroundColor(TextColor.GREEN))
+        formatter.visit(ForegroundColor.of(TextColor.GREEN))
         formatter.visit(new Text("789"))
-        formatter.visit(new ForegroundColor(TextColor.DEFAULT))
+        formatter.visit(ForegroundColor.of(TextColor.DEFAULT))
         formatter.visit(new Text("123"))
         formatter.toHtml().contains("<pre>123<span class='ansi-red'>456</span><span class='ansi-green'>789</span>123</pre>")
     }
@@ -61,30 +61,61 @@ class HtmlFormatterTest extends Specification {
     def "formats bright and normal foreground color"() {
         expect:
         formatter.visit(new Text("123"))
-        formatter.visit(new ForegroundColor(TextColor.RED))
+        formatter.visit(ForegroundColor.of(TextColor.RED))
         formatter.visit(new Text("456"))
-        formatter.visit(new ForegroundColor(TextColor.BRIGHT_RED))
+        formatter.visit(ForegroundColor.of(TextColor.BRIGHT_RED))
         formatter.visit(new Text("789"))
-        formatter.visit(new ForegroundColor(TextColor.DEFAULT))
+        formatter.visit(ForegroundColor.of(TextColor.DEFAULT))
         formatter.visit(new Text("123"))
         formatter.toHtml().contains("<pre>123<span class='ansi-red'>456</span><span class='ansi-bright-red'>789</span>123</pre>")
     }
 
+    def "formats background color"() {
+        expect:
+        formatter.visit(new Text("123"))
+        formatter.visit(BackgroundColor.of(TextColor.RED))
+        formatter.visit(new Text("456"))
+        formatter.visit(BackgroundColor.of(TextColor.GREEN))
+        formatter.visit(new Text("789"))
+        formatter.visit(BackgroundColor.of(TextColor.BRIGHT_GREEN))
+        formatter.visit(new Text("123"))
+        formatter.visit(BackgroundColor.of(TextColor.DEFAULT))
+        formatter.visit(new Text("456"))
+        formatter.toHtml().contains("<pre>123<span class='ansi-red-bg'>456</span><span class='ansi-green-bg'>789</span><span class='ansi-bright-green-bg'>123</span>456</pre>")
+    }
+
     def "formats foreground color and bold"() {
         expect:
-        formatter.visit(new ForegroundColor(TextColor.RED))
+        formatter.visit(ForegroundColor.of(TextColor.RED))
         formatter.visit(new Text("123"))
         formatter.visit(BoldOn.INSTANCE)
         formatter.visit(new Text("456"))
-        formatter.visit(new ForegroundColor(TextColor.GREEN))
+        formatter.visit(ForegroundColor.of(TextColor.GREEN))
         formatter.visit(new Text("789"))
-        formatter.visit(new ForegroundColor(TextColor.BRIGHT_GREEN))
+        formatter.visit(ForegroundColor.of(TextColor.BRIGHT_GREEN))
         formatter.visit(new Text("123"))
-        formatter.visit(new ForegroundColor(TextColor.DEFAULT))
+        formatter.visit(ForegroundColor.of(TextColor.DEFAULT))
         formatter.visit(new Text("456"))
         formatter.visit(BoldOff.INSTANCE)
         formatter.visit(new Text("789"))
         formatter.toHtml().contains("<pre><span class='ansi-red'>123</span><span class='ansi-bold ansi-red'>456</span><span class='ansi-bold ansi-green'>789</span><span class='ansi-bold ansi-bright-green'>123</span><span class='ansi-bold'>456</span>789</pre>")
+    }
+
+    def "formats foreground color and background color"() {
+        expect:
+        formatter.visit(ForegroundColor.of(TextColor.RED))
+        formatter.visit(new Text("123"))
+        formatter.visit(BackgroundColor.of(TextColor.GREEN))
+        formatter.visit(new Text("456"))
+        formatter.visit(ForegroundColor.of(TextColor.BRIGHT_BLUE))
+        formatter.visit(new Text("789"))
+        formatter.visit(BackgroundColor.of(TextColor.BRIGHT_GREEN))
+        formatter.visit(new Text("123"))
+        formatter.visit(ForegroundColor.of(TextColor.DEFAULT))
+        formatter.visit(new Text("456"))
+        formatter.visit(BackgroundColor.of(TextColor.DEFAULT))
+        formatter.visit(new Text("789"))
+        formatter.toHtml().contains("<pre><span class='ansi-red'>123</span><span class='ansi-red ansi-green-bg'>456</span><span class='ansi-bright-blue ansi-green-bg'>789</span><span class='ansi-bright-blue ansi-bright-green-bg'>123</span><span class='ansi-bright-green-bg'>456</span>789</pre>")
     }
 
     def "formats control sequences"() {

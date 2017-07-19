@@ -1,13 +1,12 @@
 package net.rubygrapefruit.ansi.console;
 
 import net.rubygrapefruit.ansi.NormalizingVisitor;
-import net.rubygrapefruit.ansi.TextColor;
+import net.rubygrapefruit.ansi.TextAttributes;
 import net.rubygrapefruit.ansi.Visitor;
 import net.rubygrapefruit.ansi.token.*;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A simple terminal emulator that interprets a stream of {@link Token} instances.
@@ -123,11 +122,14 @@ public class AnsiConsole implements Visitor {
 
         void collectDetails(StringBuilder builder) {
             builder.append("{");
-            if (attributes.bold) {
+            if (attributes.isBold()) {
                 builder.append("bold ");
             }
-            if (attributes.color != null) {
-                builder.append(attributes.color).append(" ");
+            if (!attributes.getColor().isDefault()) {
+                builder.append("color: ").append(attributes.getColor()).append(" ");
+            }
+            if (!attributes.getBackground().isDefault()) {
+                builder.append("background: ").append(attributes.getBackground()).append(" ");
             }
             builder.append("'").append(chars).append("'}");
             if (next != null) {
@@ -137,12 +139,13 @@ public class AnsiConsole implements Visitor {
 
         void visit(Visitor visitor) {
             if (chars.length() > 0) {
-                if (attributes.bold) {
+                if (attributes.isBold()) {
                     visitor.visit(BoldOn.INSTANCE);
                 } else {
                     visitor.visit(BoldOff.INSTANCE);
                 }
-                visitor.visit(ForegroundColor.of(attributes.color));
+                visitor.visit(ForegroundColor.of(attributes.getColor()));
+                visitor.visit(BackgroundColor.of(attributes.getBackground()));
                 visitor.visit(new Text(chars.toString()));
             }
             if (next != null) {
@@ -351,66 +354,6 @@ public class AnsiConsole implements Visitor {
 
         void eraseToEnd(int col) {
             first.eraseToEnd(col);
-        }
-    }
-
-    /**
-     * Immutable text attributes.
-     */
-    static class TextAttributes {
-        final boolean bold;
-        final TextColor color;
-
-        static final TextAttributes NORMAL = new TextAttributes(false, TextColor.DEFAULT);
-        static final TextAttributes BOLD = new TextAttributes(true, TextColor.DEFAULT);
-
-        private TextAttributes(boolean bold, TextColor color) {
-            this.bold = bold;
-            this.color = color;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            TextAttributes other = (TextAttributes) obj;
-            return other.bold == bold && Objects.equals(other.color, color);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(color) ^ (bold ? 31 : 1);
-        }
-
-        TextAttributes boldOn() {
-            if (bold) {
-                return this;
-            }
-            if (color == TextColor.DEFAULT) {
-                return BOLD;
-            }
-            return new TextAttributes(true, color);
-        }
-
-        TextAttributes boldOff() {
-            if (!bold) {
-                return this;
-            }
-            if (color == TextColor.DEFAULT) {
-                return NORMAL;
-            }
-            return new TextAttributes(false, color);
-        }
-
-        TextAttributes color(TextColor color) {
-            if (Objects.equals(this.color, color)) {
-                return this;
-            }
-            if (color == TextColor.DEFAULT && !bold) {
-                return NORMAL;
-            }
-            return new TextAttributes(bold, color);
         }
     }
 }
