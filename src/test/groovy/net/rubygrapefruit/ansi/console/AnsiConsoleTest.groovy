@@ -966,4 +966,24 @@ class AnsiConsoleTest extends Specification {
         console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
         console.contents(new DiagnosticConsole()).toString() == "123{foreground-color red}456\n{bold-on}+++{foreground-color green}...{bold-off}789\n{foreground-color default}123"
     }
+
+    def "can apply background color"() {
+        expect:
+        console.visit(new Text("123"))
+        console.visit(BackgroundColor.of(TextColor.RED))
+        console.visit(new Text("456"))
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("+++"))
+        console.visit(BackgroundColor.of(TextColor.GREEN))
+        console.visit(new Text("..."))
+        console.visit(BackgroundColor.of(TextColor.DEFAULT))
+        console.visit(new Text("789"))
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("123"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{background-color red}456{background-color default}"
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "{background-color red}+++{background-color green}...{background-color default}789"
+        console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
+        console.contents(new DiagnosticConsole()).toString() == "123{background-color red}456\n+++{background-color green}...{background-color default}789\n123"
+    }
+
 }

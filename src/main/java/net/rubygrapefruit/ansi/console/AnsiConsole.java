@@ -64,6 +64,9 @@ public class AnsiConsole implements Visitor {
         } else if (token instanceof ForegroundColor) {
             ForegroundColor color = (ForegroundColor) token;
             attributes = attributes.color(color.getColor());
+        } else if (token instanceof BackgroundColor) {
+            BackgroundColor color = (BackgroundColor) token;
+            attributes = attributes.background(color.getColor());
         } else {
             col = rows.get(row).insertAt(col, token, attributes);
         }
