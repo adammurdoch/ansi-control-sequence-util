@@ -20,6 +20,14 @@ class HtmlFormatterTest extends Specification {
         formatter.toHtml().contains("<pre>123\n456</pre>")
     }
 
+    def "escapes text"() {
+        expect:
+        formatter.visit(new Text("<pre>"))
+        formatter.visit(NewLine.INSTANCE)
+        formatter.visit(new Text("</pre>"))
+        formatter.toHtml().contains("<pre>&lt;pre>\n&lt;/pre></pre>")
+    }
+
     def "formats bold text"() {
         expect:
         formatter.visit(new Text("123"))
