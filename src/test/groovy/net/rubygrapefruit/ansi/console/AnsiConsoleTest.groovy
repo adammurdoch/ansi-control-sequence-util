@@ -940,10 +940,10 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("789"))
         console.visit(NewLine.INSTANCE)
         console.visit(new Text("123"))
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color null}"
-        console.rows[1].visit(new DiagnosticConsole()).toString() == "{foreground-color red}+++{foreground-color green}...{foreground-color null}789"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color default}"
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "{foreground-color red}+++{foreground-color green}...{foreground-color default}789"
         console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
-        console.contents(new DiagnosticConsole()).toString() == "123{foreground-color red}456\n+++{foreground-color green}...{foreground-color null}789\n123"
+        console.contents(new DiagnosticConsole()).toString() == "123{foreground-color red}456\n+++{foreground-color green}...{foreground-color default}789\n123"
     }
 
     def "can apply interleaved foreground color and bold text"() {
@@ -961,9 +961,9 @@ class AnsiConsoleTest extends Specification {
         console.visit(new ForegroundColor(TextColor.DEFAULT))
         console.visit(NewLine.INSTANCE)
         console.visit(new Text("123"))
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color null}"
-        console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}{foreground-color red}+++{foreground-color green}...{bold-off}789{foreground-color null}"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{foreground-color red}456{foreground-color default}"
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}{foreground-color red}+++{foreground-color green}...{bold-off}789{foreground-color default}"
         console.rows[2].visit(new DiagnosticConsole()).toString() == "123"
-        console.contents(new DiagnosticConsole()).toString() == "123{foreground-color red}456\n{bold-on}+++{foreground-color green}...{bold-off}789\n{foreground-color null}123"
+        console.contents(new DiagnosticConsole()).toString() == "123{foreground-color red}456\n{bold-on}+++{foreground-color green}...{bold-off}789\n{foreground-color default}123"
     }
 }

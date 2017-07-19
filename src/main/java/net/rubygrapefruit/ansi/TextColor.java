@@ -27,6 +27,17 @@ public class TextColor {
         this.bright = bright;
     }
 
+    public void appendDiagnostics(StringBuilder builder) {
+        if (bright) {
+            builder.append("bright ");
+        }
+        if (name != null) {
+            builder.append(name);
+        } else {
+            builder.append("default");
+        }
+    }
+
     public boolean isDefault() {
         return this == DEFAULT;
     }

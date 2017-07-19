@@ -25,10 +25,7 @@ public class BackgroundColor extends ControlSequence {
     @Override
     public void appendDiagnostic(StringBuilder builder) {
         builder.append("{background-color ");
-        if (color.isBright()) {
-            builder.append("bright ");
-        }
-        builder.append(color.getName());
+        color.appendDiagnostics(builder);
         builder.append("}");
     }
 }

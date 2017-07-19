@@ -81,7 +81,7 @@ class NormalizingVisitorTest extends Specification {
         target.toString() == "{foreground-color red}\n123"
 
         visitor.visit(new Text("456"))
-        target.toString() == "{foreground-color red}\n123{foreground-color null}456"
+        target.toString() == "{foreground-color red}\n123{foreground-color default}456"
     }
 
     def "does not forward foreground color change for span that contains no text"() {
@@ -139,7 +139,7 @@ class NormalizingVisitorTest extends Specification {
         target.toString() == "{background-color red}\n123"
 
         visitor.visit(new Text("456"))
-        target.toString() == "{background-color red}\n123{background-color null}456"
+        target.toString() == "{background-color red}\n123{background-color default}456"
     }
 
     def "does not forward background color change for span that contains no text"() {
@@ -190,7 +190,7 @@ class NormalizingVisitorTest extends Specification {
         visitor.visit(new Text("123"))
         visitor.endStream()
 
-        target.toString() == "{bold-on}{foreground-color red}{background-color white}123{bold-off}{foreground-color null}{background-color null}"
+        target.toString() == "{bold-on}{foreground-color red}{background-color white}123{bold-off}{foreground-color default}{background-color default}"
     }
 
     def "does not reset on end for deferred changes"() {
