@@ -25,14 +25,14 @@ public class HtmlFormatter implements Visitor {
         content.append(".ansi-bold { font-weight: bold; }\n");
         content.append(".ansi-unknown-sequence { color: white; background: red; }\n");
         content.append(".ansi-sequence { color: black; background: #c0c0c0; }\n");
-        appendColorStyle(content, TextColor.BLACK, "rgb(0,0,0)", "rgb(129,131,131)");
-        appendColorStyle(content, TextColor.RED, "rgb(194,54,33)", "rgb(252,57,31)");
-        appendColorStyle(content, TextColor.GREEN, "rgb(37,188,3)", "rgb(49,231,34)");
-        appendColorStyle(content, TextColor.YELLOW, "rgb(173,173,39)", "rgb(234,236,35)");
-        appendColorStyle(content, TextColor.BLUE, "rgb(73,46,225)", "rgb(88,51,255)");
-        appendColorStyle(content, TextColor.MAGENTA, "rgb(211,56,211)", "rgb(249,53,248)");
-        appendColorStyle(content, TextColor.CYAN, "rgb(51,187,200)", "rgb(20,240,240)");
-        appendColorStyle(content, TextColor.WHITE, "rgb(203,204,205)", "rgb(233,235,235)");
+        appendColorStyle(content, TextColor.BLACK, "rgb(0,0,0)", "rgb(102,102,102)");
+        appendColorStyle(content, TextColor.RED, "rgb(153,0,0)", "rgb(229,0,0)");
+        appendColorStyle(content, TextColor.GREEN, "rgb(0,166,0)", "rgb(0,217,0)");
+        appendColorStyle(content, TextColor.YELLOW, "rgb(153,153,0)", "rgb(229,229,0)");
+        appendColorStyle(content, TextColor.BLUE, "rgb(0,0,178)", "rgb(0,0,255)");
+        appendColorStyle(content, TextColor.MAGENTA, "rgb(178,0,178)", "rgb(229,0,229)");
+        appendColorStyle(content, TextColor.CYAN, "rgb(0,166,178)", "rgb(0,229,229)");
+        appendColorStyle(content, TextColor.WHITE, "rgb(191,191,191)", "rgb(229,229,229)");
         content.append("</style>\n</head>\n<body>\n<pre>");
     }
 
