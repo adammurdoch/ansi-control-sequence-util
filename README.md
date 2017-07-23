@@ -1,12 +1,14 @@
-A library of utilities for parsing and interpreting text that contains ANSI control sequences.
+A Java library of utilities for parsing and interpreting text that contains ANSI control sequences.
 
-This can be used for implementing a terminal emulator or for testing or documenting command-line applications.
+This can be used to implement a terminal emulator or for testing or documenting command-line applications.
 
 ## TODO
 
 ### Missing emulation
 
-- Handle all cursor movement control sequences:
+Not all control sequences are supported yet: 
+
+- Unsupported cursor movement control sequences:
     - Cursor next line
     - Cursor previous line
     - Cursor horizontal absolute
@@ -15,11 +17,12 @@ This can be used for implementing a terminal emulator or for testing or document
     - Scroll down
     - Save cursor position
     - Restore cursor position
-- Handle all erase control sequences:
+- Unsupported erase control sequences:
     - Erase part of screen
-- Handle text attribute control sequences:
-    - Fully handle background color
-    - Handle 256 and 24-bit colors
+- Unsupported text attribute control sequences:
+    - Background color is not fully supported
+    - Handle 256 color
+    - Handle 24-bit colors
     - Handle underline
 
 ### Improvements
@@ -31,7 +34,7 @@ This can be used for implementing a terminal emulator or for testing or document
     - Escape text content.
 - `AnsiConsole` improvements:
     - Erase to end of line should erase character under cursor
-    - Support background color: erase should fill with background color?
+    - Support background color: erase should fill with background color
     - When replacing tail of span with another span, check whether next span has target attributes already
     - When overwriting span contents at offset 0 of span, maybe merge with previous
     - When erasing bold span that is adjacent to non-bold span
