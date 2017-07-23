@@ -256,19 +256,34 @@ public class AnsiConsole implements Visitor {
             return null;
         }
 
-        void eraseToEnd(int col) {
-            if (col == chars.length()) {
-                next = null;
-            } else if (col < chars.length()) {
-                chars.setLength(col);
-                next = null;
+        /**
+         * Erase from pos to end of row
+         */
+        void eraseToEnd(int pos) {
+            // If outside span and has next, delegate
+            // If outside span and no next and normal, pad
+            // If outside span and no next and not normal, add span
+            // If inside span and normal, set length and append
+            // If inside span and not normal, set length and add span
+            if (pos < chars.length()) {
+                // Inside this span, trim then add a blank char
+                chars.setLength(pos);
+                if (attributes.equals(TextAttributes.NORMAL)) {
+                    chars.append(' ');
+                    next = null;
+                } else {
+                    next = new Span();
+                    next.eraseToEnd(0);
+                }
             } else if (next != null) {
-                next.eraseToEnd(col - chars.length());
+                // Outside this span, and this span is not the last span
+                next.eraseToEnd(pos - chars.length());
             } else if (!attributes.equals(TextAttributes.NORMAL)) {
                 next = new Span();
-                next.eraseToEnd(col - chars.length());
+                next.eraseToEnd(pos - chars.length());
             } else {
-                while (col > chars.length()) {
+                // Outside this and this span is the last span
+                while (pos >= chars.length()) {
                     chars.append(' ');
                 }
             }
@@ -284,29 +299,29 @@ public class AnsiConsole implements Visitor {
         }
 
         /**
-         * Erase from start of this span to the given offset (exclusive).
+         * Erase from start of this span to the given position (exclusive).
          */
-        void eraseToStart(int end) {
-            if (end <= chars.length()) {
-                for (int i = 0; i < end; i++) {
+        void eraseToStart(int pos) {
+            if (pos <= chars.length()) {
+                for (int i = 0; i < pos; i++) {
                     chars.setCharAt(i, ' ');
                 }
                 if (!attributes.equals(TextAttributes.NORMAL)) {
-                    if (end == chars.length()) {
+                    if (pos == chars.length()) {
                         attributes = TextAttributes.NORMAL;
                     } else {
-                        Span replaced = new Span(chars.substring(end, chars.length()), this.attributes);
-                        chars.setLength(end);
+                        Span replaced = new Span(chars.substring(pos, chars.length()), this.attributes);
+                        chars.setLength(pos);
                         attributes = TextAttributes.NORMAL;
                         replaced.next = next;
                         next = replaced;
                     }
                 }
             } else {
-                int remove = end - chars.length();
-                chars.setLength(end);
+                int remove = pos - chars.length();
+                chars.setLength(pos);
                 attributes = TextAttributes.NORMAL;
-                for (int i = 0; i < end; i++) {
+                for (int i = 0; i < pos; i++) {
                     chars.setCharAt(i, ' ');
                 }
                 if (next != null) {
@@ -358,6 +373,9 @@ public class AnsiConsole implements Visitor {
             first.eraseToStart(col + 1);
         }
 
+        /**
+         * Erase from col to end of row, including col.
+         */
         void eraseToEnd(int col) {
             first.eraseToEnd(col);
         }
