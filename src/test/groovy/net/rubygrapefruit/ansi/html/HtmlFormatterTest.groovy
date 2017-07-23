@@ -24,8 +24,8 @@ class HtmlFormatterTest extends Specification {
         expect:
         formatter.visit(new Text("<pre>"))
         formatter.visit(NewLine.INSTANCE)
-        formatter.visit(new Text("</pre>"))
-        formatter.toHtml().contains("<pre>&lt;pre>\n&lt;/pre></pre>")
+        formatter.visit(new Text("<!-- ignore --></pre>"))
+        formatter.toHtml().contains("<pre>&lt;pre>\n&lt;!-- ignore -->&lt;/pre></pre>")
     }
 
     def "formats bold text"() {
