@@ -283,30 +283,30 @@ public class AnsiConsole implements Visitor {
             next = null;
         }
 
-        void eraseToStart(int col) {
-            if (col == 0) {
-                return;
-            }
-            if (col <= chars.length()) {
-                for (int i = 0; i < col; i++) {
+        /**
+         * Erase from start of this span to the given offset (exclusive).
+         */
+        void eraseToStart(int end) {
+            if (end <= chars.length()) {
+                for (int i = 0; i < end; i++) {
                     chars.setCharAt(i, ' ');
                 }
                 if (!attributes.equals(TextAttributes.NORMAL)) {
-                    if (col == chars.length()) {
+                    if (end == chars.length()) {
                         attributes = TextAttributes.NORMAL;
                     } else {
-                        Span replaced = new Span(chars.substring(col, chars.length()), this.attributes);
-                        chars.setLength(col);
+                        Span replaced = new Span(chars.substring(end, chars.length()), this.attributes);
+                        chars.setLength(end);
                         attributes = TextAttributes.NORMAL;
                         replaced.next = next;
                         next = replaced;
                     }
                 }
             } else {
-                int remove = col - chars.length();
-                chars.setLength(col);
+                int remove = end - chars.length();
+                chars.setLength(end);
                 attributes = TextAttributes.NORMAL;
-                for (int i = 0; i < col; i++) {
+                for (int i = 0; i < end; i++) {
                     chars.setCharAt(i, ' ');
                 }
                 if (next != null) {
@@ -351,8 +351,11 @@ public class AnsiConsole implements Visitor {
             first.erase(col);
         }
 
+        /**
+         * Erase from col to start of row, including col.
+         */
         void eraseToStart(int col) {
-            first.eraseToStart(col);
+            first.eraseToStart(col + 1);
         }
 
         void eraseToEnd(int col) {

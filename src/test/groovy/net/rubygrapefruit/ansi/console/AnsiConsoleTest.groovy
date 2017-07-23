@@ -300,33 +300,33 @@ class AnsiConsoleTest extends Specification {
     def "can erase to beginning of line"() {
         expect:
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
-        console.contents(new DiagnosticConsole()).toString() == ""
+        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
+        console.contents(new DiagnosticConsole()).toString() == " "
 
         console.visit(new Text("12345"))
         console.visit(new CursorBackward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "   45"
-        console.contents(new DiagnosticConsole()).toString() == "   45"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "    5"
+        console.contents(new DiagnosticConsole()).toString() == "    5"
 
         console.visit(CarriageReturn.INSTANCE)
         console.visit(new Text("+++"))
         console.visit(CarriageReturn.INSTANCE)
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "+++45"
-        console.contents(new DiagnosticConsole()).toString() == "+++45"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == " ++ 5"
+        console.contents(new DiagnosticConsole()).toString() == " ++ 5"
 
         console.visit(NewLine.INSTANCE)
         console.visit(new CursorUp(1))
         console.visit(new CursorForward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "  +45"
-        console.contents(new DiagnosticConsole()).toString() == "  +45\n"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "    5"
+        console.contents(new DiagnosticConsole()).toString() == "    5\n"
 
         console.visit(new CursorForward(3))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "     "
-        console.contents(new DiagnosticConsole()).toString() == "     \n"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "      "
+        console.contents(new DiagnosticConsole()).toString() == "      \n"
     }
 
     def "can erase to end of line"() {
@@ -642,7 +642,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("789"))
-        console.visit(new CursorBackward(4))
+        console.visit(new CursorBackward(5))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789"
         console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789"
@@ -654,33 +654,33 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(CarriageReturn.INSTANCE)
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[1].visit(new DiagnosticConsole()).toString() == "{bold-on}123{bold-off}456"
-        console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789\n{bold-on}123{bold-off}456"
-
-        console.visit(new CursorForward(1))
-        console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[1].visit(new DiagnosticConsole()).toString() == " {bold-on}23{bold-off}456"
         console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789\n {bold-on}23{bold-off}456"
 
-        console.visit(new CursorForward(2))
+        console.visit(new CursorForward(1))
+        console.visit(EraseToBeginningOfLine.INSTANCE)
+        console.rows[1].visit(new DiagnosticConsole()).toString() == "  {bold-on}3{bold-off}456"
+        console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789\n  {bold-on}3{bold-off}456"
+
+        console.visit(new CursorForward(1))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[1].visit(new DiagnosticConsole()).toString() == "   456"
         console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789\n   456"
     }
 
-    def "erase to start of line from leftmost column does nothing"() {
+    def "erase to start of line from leftmost column"() {
         expect:
         // Empty line
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
-        console.contents(new DiagnosticConsole()).toString() == ""
+        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
+        console.contents(new DiagnosticConsole()).toString() == " "
 
         // Default text attributes
         console.visit(new Text("123"))
         console.visit(CarriageReturn.INSTANCE)
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123"
-        console.contents(new DiagnosticConsole()).toString() == "123"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == " 23"
+        console.contents(new DiagnosticConsole()).toString() == " 23"
 
         // Bold span
         console.visit(BoldOn.INSTANCE)
@@ -689,8 +689,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("789"))
         console.visit(CarriageReturn.INSTANCE)
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}456{bold-off}789"
-        console.contents(new DiagnosticConsole()).toString() == "{bold-on}456{bold-off}789"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == " {bold-on}56{bold-off}789"
+        console.contents(new DiagnosticConsole()).toString() == " {bold-on}56{bold-off}789"
     }
 
     def "erase to start of line from inside leftmost span with default text attributes"() {
@@ -699,16 +699,16 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("123"))
         console.visit(new CursorBackward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " 23"
-        console.contents(new DiagnosticConsole()).toString() == " 23"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "  3"
+        console.contents(new DiagnosticConsole()).toString() == "  3"
 
         // End of span
         console.visit(CarriageReturn.INSTANCE)
         console.visit(new Text("1"))
         console.visit(new CursorForward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "   "
-        console.contents(new DiagnosticConsole()).toString() == "   "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "    "
+        console.contents(new DiagnosticConsole()).toString() == "    "
 
         // Inside span with following content
         console.visit(CarriageReturn.INSTANCE)
@@ -717,11 +717,11 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("567"))
         console.visit(new CursorBackward(5))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "  34{bold-on}567{bold-off}"
-        console.contents(new DiagnosticConsole()).toString() == "  34{bold-on}567{bold-off}"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "   4{bold-on}567{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "   4{bold-on}567{bold-off}"
 
         // End of span with following content
-        console.visit(new CursorForward(2))
+        console.visit(new CursorForward(1))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "    {bold-on}567{bold-off}"
         console.contents(new DiagnosticConsole()).toString() == "    {bold-on}567{bold-off}"
@@ -734,16 +734,16 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("123"))
         console.visit(new CursorBackward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " {bold-on}23{bold-off}"
-        console.contents(new DiagnosticConsole()).toString() == " {bold-on}23{bold-off}"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "  {bold-on}3{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "  {bold-on}3{bold-off}"
 
         // End of span
         console.visit(CarriageReturn.INSTANCE)
         console.visit(new Text("1"))
         console.visit(new CursorForward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "   "
-        console.contents(new DiagnosticConsole()).toString() == "   "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "    "
+        console.contents(new DiagnosticConsole()).toString() == "    "
 
         // Inside span with following content
         console.visit(CarriageReturn.INSTANCE)
@@ -752,8 +752,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("567"))
         console.visit(new CursorBackward(5))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "  {bold-on}34{bold-off}567"
-        console.contents(new DiagnosticConsole()).toString() == "  {bold-on}34{bold-off}567"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "   {bold-on}4{bold-off}567"
+        console.contents(new DiagnosticConsole()).toString() == "   {bold-on}4{bold-off}567"
 
         // End of span with following content
         console.visit(NewLine.INSTANCE)
@@ -761,10 +761,10 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("123"))
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("456"))
-        console.visit(new CursorBackward(3))
+        console.visit(new CursorBackward(4))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[1].visit(new DiagnosticConsole()).toString() == "   456"
-        console.contents(new DiagnosticConsole()).toString() == "  {bold-on}34{bold-off}567\n   456"
+        console.contents(new DiagnosticConsole()).toString() == "   {bold-on}4{bold-off}567\n   456"
     }
 
     def "erase to start of line from outside leftmost span with default text attributes"() {
@@ -775,8 +775,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(new CursorBackward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "    {bold-on}56{bold-off}"
-        console.contents(new DiagnosticConsole()).toString() == "    {bold-on}56{bold-off}"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}"
 
         // End of next span
         console.visit(CarriageReturn.INSTANCE)
@@ -784,8 +784,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("456"))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "      "
-        console.contents(new DiagnosticConsole()).toString() == "      "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "       "
+        console.contents(new DiagnosticConsole()).toString() == "       "
 
         // Inside next span with following content
         console.visit(CarriageReturn.INSTANCE)
@@ -794,7 +794,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("789"))
-        console.visit(new CursorBackward(4))
+        console.visit(new CursorBackward(5))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789"
         console.contents(new DiagnosticConsole()).toString() == "     {bold-on}6{bold-off}789"
@@ -806,7 +806,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("789"))
-        console.visit(new CursorBackward(3))
+        console.visit(new CursorBackward(4))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "      789"
         console.contents(new DiagnosticConsole()).toString() == "      789"
@@ -821,8 +821,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(new CursorBackward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "    56"
-        console.contents(new DiagnosticConsole()).toString() == "    56"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "     6"
+        console.contents(new DiagnosticConsole()).toString() == "     6"
 
         // End of next span
         console.visit(CarriageReturn.INSTANCE)
@@ -831,8 +831,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("456"))
         console.visit(EraseToBeginningOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "      "
-        console.contents(new DiagnosticConsole()).toString() == "      "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "       "
+        console.contents(new DiagnosticConsole()).toString() == "       "
 
         // Inside next span with following content
         console.visit(CarriageReturn.INSTANCE)
@@ -842,7 +842,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("789"))
-        console.visit(new CursorBackward(4))
+        console.visit(new CursorBackward(5))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "     6{bold-on}789{bold-off}"
         console.contents(new DiagnosticConsole()).toString() == "     6{bold-on}789{bold-off}"
@@ -855,7 +855,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("789"))
-        console.visit(new CursorBackward(3))
+        console.visit(new CursorBackward(4))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "      {bold-on}789{bold-off}"
         console.contents(new DiagnosticConsole()).toString() == "      {bold-on}789{bold-off}"
@@ -865,7 +865,7 @@ class AnsiConsoleTest extends Specification {
         expect:
         // Single span normal attributes
         console.visit(new Text("123"))
-        console.visit(new CursorForward(3))
+        console.visit(new CursorForward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "      "
         console.contents(new DiagnosticConsole()).toString() == "      "
@@ -874,7 +874,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(CarriageReturn.INSTANCE)
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("123"))
-        console.visit(new CursorForward(3))
+        console.visit(new CursorForward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "      "
         console.contents(new DiagnosticConsole()).toString() == "      "
@@ -884,7 +884,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("123"))
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("456"))
-        console.visit(new CursorForward(3))
+        console.visit(new CursorForward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "         "
         console.contents(new DiagnosticConsole()).toString() == "         "
@@ -895,7 +895,7 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("123"))
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("456"))
-        console.visit(new CursorForward(3))
+        console.visit(new CursorForward(2))
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.rows[0].visit(new DiagnosticConsole()).toString() == "         "
         console.contents(new DiagnosticConsole()).toString() == "         "
