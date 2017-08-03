@@ -1,9 +1,16 @@
-apply plugin: 'java-library'
-apply plugin: 'groovy'
+plugins {
+    id "java-library"
+    id "groovy"
+    id "maven"
+    id "com.jfrog.bintray" version "1.7.3"
+}
 
 repositories {
     jcenter()
 }
+
+group = 'net.rubygrapefruit'
+version = '0.1'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
@@ -12,4 +19,36 @@ dependencies {
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.11'
     testImplementation 'org.spockframework:spock-core:1.0-groovy-2.4'
     testImplementation 'junit:junit:4.12'
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    dependsOn javadoc
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
+artifacts {
+    archives sourceJar
+    archives javadocJar
+}
+
+bintray {
+    user = 'adammurdoch'
+    key = System.getProperty("bintray-key")
+    pkg {
+        repo = 'maven'
+        name = 'ansi-control-sequence-util'
+        userOrg = 'adammurdoch'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/adammurdoch/ansi-control-sequence-util.git'
+        version {
+            name = project.version
+        }
+    }
+    configurations = ['archives']
 }
