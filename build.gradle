@@ -15,7 +15,8 @@ repositories {
 }
 
 group = 'net.rubygrapefruit'
-version = '0.1-dev'
+def nextVersion = '0.1'
+version = "${nextVersion}-dev"
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
@@ -58,6 +59,7 @@ bintray {
 
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.api.Git
+import java.util.regex.Pattern
 
 def tagName = providers.property(String)
 
@@ -73,18 +75,30 @@ task tag {
     }
 }
 
+task incrementVersion {
+    doLast {
+        def matcher = Pattern.compile("(\\d+)\\.(\\d+)").matcher(nextVersion)
+        if (!matcher.matches()) {
+            throw new RuntimeException("Could not parse version")
+        }
+        def newVersion = matcher.group(1) + "." + (Integer.parseInt(matcher.group(2)) + 1)
+        buildFile.text = buildFile.text.replace("nextVersion = '${nextVersion}'", "nextVersion = '${newVersion}'")
+    }
+}
+
 bintrayUpload.mustRunAfter(test)
 bintrayUpload.mustRunAfter(tag)
+incrementVersion.mustRunAfter(bintrayUpload)
 
 task release {
-    dependsOn check, bintrayUpload, tag
+    dependsOn check, bintrayUpload, tag, incrementVersion
     group = 'release'
     description = 'release a version'
 }
 
 gradle.taskGraph.whenReady {
     if (it.allTasks.contains(release)) {
-        project.version = project.version.replaceAll('-dev', '')
+        project.version = nextVersion
     }
     bintray.pkg.version.name = project.version
     bintrayUpload.versionName = project.version
