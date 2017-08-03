@@ -1,5 +1,8 @@
 package net.rubygrapefruit.ansi;
 
+/**
+ * An immutable text color.
+ */
 public class TextColor {
     private final String name;
     private final boolean bright;

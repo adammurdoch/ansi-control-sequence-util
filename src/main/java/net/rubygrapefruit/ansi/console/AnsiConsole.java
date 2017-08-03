@@ -13,7 +13,9 @@ import java.util.List;
  *
  * <p>This can be used as a parameter to {@link net.rubygrapefruit.ansi.AnsiParser#newParser(String, Visitor)} to interpret a stream of bytes.</p>
  *
- * To query the contents of the console you can use the {@link #getRows()} or {@link #contents(Visitor)} methods.
+ * <p>To query the contents of the console you can use the {@link #getRows()} or {@link #contents(Visitor)} methods.
+ *
+ * <p>Implementations are not thread safe.</p>
  */
 public class AnsiConsole implements Visitor {
     private final LinkedList<RowImpl> rows = new LinkedList<RowImpl>();

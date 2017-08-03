@@ -8,6 +8,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Parses a stream of bytes into a stream of {@link Token} instances.
+ */
 public class AnsiParser {
     /**
      * Creates an {@link OutputStream} that parses the bytes written to it into a stream of {@link Token} instances.

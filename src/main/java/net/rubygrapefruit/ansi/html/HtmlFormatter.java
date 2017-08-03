@@ -6,13 +6,27 @@ import net.rubygrapefruit.ansi.Visitor;
 import net.rubygrapefruit.ansi.token.*;
 
 /**
- * Formats a stream of {@link Token} instances into HTML. Handles text attribute control sequences but does not handle cursor control sequences. To do
- * so, use an instance of this class as a parameter to {@link net.rubygrapefruit.ansi.console.AnsiConsole#contents(Visitor)}.
+ * Formats a stream of {@link Token} instances into HTML. Handles text attribute control sequences but does not handle cursor control sequences. To do so, use an instance of this class as a parameter to {@link net.rubygrapefruit.ansi.console.AnsiConsole#contents(Visitor)}.
  *
- * <p>Generates spans with the following classes:</p> <ul> <li>{@code ansi-bold}: bold text.</li> <li>{@code ansi-<color>}: foreground color.</li>
- * <li>{@code ansi-bright-<color>}: bright foreground color.</li> <li>{@code ansi-<color>-bg}: background color.</li> <li>{@code
- * ansi-bright-<color>-bg}: background color.</li> <li>{@code ansi-sequence}: a sequence that is recognized but not interpreted.</li> <li>{@code
- * ansi-unknown-sequence}: an unrecognized sequence.</li> </ul>
+ * <p>Generates spans with the following classes:</p>
+ *
+ * <ul>
+ *
+ * <li>{@code ansi-bold}: bold text.</li>
+ *
+ * <li>{@code ansi-<color>}: foreground color.</li>
+ *
+ * <li>{@code ansi-bright-<color>}: bright foreground color.</li>
+ *
+ * <li>{@code ansi-<color>-bg}: background color.</li>
+ *
+ * <li>{@code ansi-bright-<color>-bg}: background color.</li>
+ *
+ * <li>{@code ansi-sequence}: a sequence that is recognized but not interpreted.</li>
+ *
+ * <li>{@code ansi-unknown-sequence}: an unrecognized sequence.</li>
+ *
+ * </ul>
  */
 public class HtmlFormatter implements Visitor {
     private final StringBuilder content = new StringBuilder();
