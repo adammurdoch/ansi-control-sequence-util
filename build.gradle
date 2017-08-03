@@ -101,7 +101,7 @@ incrementVersion.mustRunAfter(bintrayUpload)
 task release {
     dependsOn check, bintrayUpload, tag, incrementVersion
     group = 'release'
-    description = 'release a version'
+    description = 'release the next version'
 }
 
 gradle.taskGraph.whenReady {
