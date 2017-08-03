@@ -62,11 +62,13 @@ public class Main {
         String cursorDown2 = "\u001B[2B";
         String cursorUp2 = "\u001B[2A";
         String cursorBack20 = "\u001B[20D";
-        String cursorBack4 = "\u001B[4D";
         String cursorBack8 = "\u001B[8D";
         String cursorBack7 = "\u001B[7D";
+        String cursorForward4 = "\u001B[4C";
+        String cursorForward5 = "\u001B[5C";
         String eraseToEndLine = "\u001B[K";
         String eraseToStartLine = "\u001B[1K";
+        String eraseLine = "\u001B[2K";
         String red = "\u001B[0;31m";
         String reset = "\u001B[0m";
         String underline = "\u001B[4m";
@@ -82,7 +84,9 @@ public class Main {
         System.out.write(("\n\n" + cursorUp2 + "normal     " + boldOn + "bold" + boldOff + cursorDown2 + "\r" + red + "red        " + boldOn + "bold red" + cursorBack20 + cursorUp1 + highBlack + "high black " + boldOn + "bold high black\n\n").getBytes(utf8));
 
         System.out.write((reset + "\n" + underline + boldOn + "BACKGROUND" + reset + "\n").getBytes(utf8));
-        System.out.write((white + blueBackground + "white on blue        " + defaultColors + "\n" + white + brightBlueBackground + "white on bright blue " + defaultColors + "\n").getBytes(utf8));
+        System.out.write((white + blueBackground + "white on blue        " + defaultColors + "\n").getBytes(utf8));
+        System.out.write((white + brightBlueBackground + "white on bright blue " + defaultColors + "\n").getBytes(utf8));
+        System.out.write((white + brightBlueBackground + cursorForward4 + " padding " + defaultColors + "\n").getBytes(utf8));
 
         System.out.write((reset + "\n" + underline + boldOn + "ERASE" + reset + "\n").getBytes(utf8));
         // Erase from middle of line to start
@@ -91,12 +95,18 @@ public class Main {
         System.out.write(("1234" + redBackground + eraseToStartLine + defaultColors + "\n").getBytes(utf8));
         // Erase from start of line to start
         System.out.write(("12345\r" + redBackground + eraseToStartLine + defaultColors + "\n").getBytes(utf8));
+        // Erase from virtual space to start
+        System.out.write((redBackground + cursorForward4 + eraseToStartLine + defaultColors + "\n").getBytes(utf8));
         // Erase from middle of line to end
         System.out.write(("12345<empty>" + redBackground + cursorBack7 + eraseToEndLine + defaultColors + "\n").getBytes(utf8));
         // Erase from start of line to end
         System.out.write(("12345\r" + redBackground + eraseToEndLine + defaultColors + "\n").getBytes(utf8));
         // Erase from end of line to end
         System.out.write(("12345" + redBackground + eraseToEndLine + defaultColors + "\n").getBytes(utf8));
+        // Erase from virtual space to end
+        System.out.write((redBackground + cursorForward5 + eraseToEndLine + defaultColors + "\n").getBytes(utf8));
+        // Erase from middle of line
+        System.out.write(("12345<empty>" + redBackground + cursorBack7 + eraseLine + defaultColors + "\n").getBytes(utf8));
 
         System.out.write((reset + "\n" + underline + boldOn + "COLORS" + reset + "\n").getBytes(utf8));
         System.out.write("\u001B[30mblack    \u001B[1mbold    \u001B[22;90mbright    \u001B[1mbold    \u001B[0;37;40mbackground    \u001B[100mbright    \u001B[0m\n".getBytes(utf8));
