@@ -1,3 +1,8 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies { classpath 'org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r' }
+}
+
 plugins {
     id "java-library"
     id "groovy"
@@ -10,7 +15,7 @@ repositories {
 }
 
 group = 'net.rubygrapefruit'
-version = '0.1'
+version = '0.1-dev'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
@@ -45,10 +50,44 @@ bintray {
         name = 'ansi-control-sequence-util'
         userOrg = 'adammurdoch'
         licenses = ['Apache-2.0']
+        websiteUrl = 'https://github.com/adammurdoch/ansi-control-sequence-util'
         vcsUrl = 'https://github.com/adammurdoch/ansi-control-sequence-util.git'
-        version {
-            name = project.version
-        }
     }
     configurations = ['archives']
+}
+
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.eclipse.jgit.api.Git
+
+def tagName = providers.property(String)
+
+task tag {
+    doLast {
+        def repo = new FileRepositoryBuilder().setWorkTree(projectDir).build()
+        try {
+            def git = new Git(repo)
+            git.tag().setName(tagName.get()).call()
+        } finally {
+            repo.close()
+        }
+    }
+}
+
+bintrayUpload.mustRunAfter(test)
+bintrayUpload.mustRunAfter(tag)
+
+task release {
+    dependsOn check, bintrayUpload, tag
+    group = 'release'
+    description = 'release a version'
+}
+
+gradle.taskGraph.whenReady {
+    if (it.allTasks.contains(release)) {
+        project.version = project.version.replaceAll('-dev', '')
+    }
+    bintray.pkg.version.name = project.version
+    bintrayUpload.versionName = project.version
+    tagName.set("v${project.version}")
+    bintrayUpload.versionVcsTag = tagName.get()
 }
