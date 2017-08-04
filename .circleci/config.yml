@@ -23,6 +23,9 @@ jobs:
 
       - run: ./gradlew build
 
+      - store_test_results:
+          path: build/test-results/test
+
       - save_cache:
           paths:
             - ~/.gradle/wrapper
