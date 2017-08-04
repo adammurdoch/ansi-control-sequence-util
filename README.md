@@ -2,6 +2,18 @@ A Java library of utilities for parsing and interpreting text that contains ANSI
 
 This can be used to implement a terminal emulator or for testing or documenting command-line applications.
 
+## Usage
+
+```
+repositories { 
+    jcenter()
+}
+
+dependencies {
+    implementation 'net.rubygrapefruit:ansi-control-sequence-util:0.1'
+}
+```
+
 ## TODO
 
 ### Missing emulation
