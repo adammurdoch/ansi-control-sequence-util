@@ -12,6 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * A test app that can either generate some ANSI test output to stdout, or convert stdin to HTML.
+ */
 public class Main {
     public static void main(String[] args) throws IOException {
         if (args.length == 1 && args[0].equals("--display")) {
