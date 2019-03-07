@@ -65,7 +65,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.api.Git
 import java.util.regex.Pattern
 
-def tagName = providers.property(String)
+def tagName = objects.property(String)
 
 task tag {
     doLast {
