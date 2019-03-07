@@ -1,5 +1,9 @@
 package net.rubygrapefruit.ansi.console
 
+import net.rubygrapefruit.ansi.TextColor
+import net.rubygrapefruit.ansi.token.BackgroundColor
+import net.rubygrapefruit.ansi.token.BoldOff
+import net.rubygrapefruit.ansi.token.BoldOn
 import net.rubygrapefruit.ansi.token.CarriageReturn
 import net.rubygrapefruit.ansi.token.CursorBackward
 import net.rubygrapefruit.ansi.token.CursorDown
@@ -8,13 +12,14 @@ import net.rubygrapefruit.ansi.token.CursorUp
 import net.rubygrapefruit.ansi.token.EraseInLine
 import net.rubygrapefruit.ansi.token.EraseToBeginningOfLine
 import net.rubygrapefruit.ansi.token.EraseToEndOfLine
+import net.rubygrapefruit.ansi.token.ForegroundColor
 import net.rubygrapefruit.ansi.token.NewLine
 import net.rubygrapefruit.ansi.token.Text
 import net.rubygrapefruit.ansi.token.UnrecognizedControlSequence
 import spock.lang.Specification
 
 class DiagnosticConsoleTest extends Specification {
-    def "formats tokens"() {
+    def "formats control tokens"() {
         def console = new DiagnosticConsole()
 
         expect:
@@ -45,6 +50,28 @@ class DiagnosticConsoleTest extends Specification {
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.visit(EraseToEndOfLine.INSTANCE)
         console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}{erase-in-line}{erase-to-beginning-of-line}{erase-to-end-of-line}"
+
+        console.contents(new DiagnosticConsole()).toString() == console.toString()
+    }
+
+    def "formats text attribute tokens"() {
+        def console = new DiagnosticConsole()
+
+        expect:
+        console.visit(ForegroundColor.of(TextColor.BRIGHT_GREEN))
+        console.toString() == "{foreground-color bright green}"
+
+        console.visit(BackgroundColor.of(TextColor.BLUE))
+        console.toString() == "{foreground-color bright green}{background-color blue}"
+
+        console.visit(new Text("123"))
+        console.toString() == "{foreground-color bright green}{background-color blue}123"
+
+        console.visit(BoldOn.INSTANCE)
+        console.toString() == "{foreground-color bright green}{background-color blue}123{bold-on}"
+
+        console.visit(BoldOff.INSTANCE)
+        console.toString() == "{foreground-color bright green}{background-color blue}123{bold-on}{bold-off}"
 
         console.contents(new DiagnosticConsole()).toString() == console.toString()
     }
