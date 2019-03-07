@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class AnsiConsole implements Visitor {
     private final LinkedList<RowImpl> rows = new LinkedList<RowImpl>();
+    // The cursor is positioned between this column and the previous, so that the next insert is into this column
     private int col;
     private int row;
     private TextAttributes attributes = TextAttributes.NORMAL;
@@ -267,16 +268,13 @@ public class AnsiConsole implements Visitor {
             // If outside span and no next and not normal, add span
             // If inside span and normal, set length and append
             // If inside span and not normal, set length and add span
-            if (pos < chars.length()) {
-                // Inside this span, trim then add a blank char
+            if (pos == chars.length()) {
+                // Ends at the end of this span
+                next = null;
+            } else if (pos < chars.length()) {
+                // Inside this span, trim
                 chars.setLength(pos);
-                if (attributes.equals(TextAttributes.NORMAL)) {
-                    chars.append(' ');
-                    next = null;
-                } else {
-                    next = new Span();
-                    next.eraseToEnd(0);
-                }
+                next = null;
             } else if (next != null) {
                 // Outside this span, and this span is not the last span
                 next.eraseToEnd(pos - chars.length());
@@ -285,7 +283,7 @@ public class AnsiConsole implements Visitor {
                 next.eraseToEnd(pos - chars.length());
             } else {
                 // Outside this and this span is the last span
-                while (pos >= chars.length()) {
+                while (pos > chars.length()) {
                     chars.append(' ');
                 }
             }

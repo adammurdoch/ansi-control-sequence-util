@@ -333,33 +333,33 @@ class AnsiConsoleTest extends Specification {
         expect:
         // Empty row
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
-        console.contents(new DiagnosticConsole()).toString() == " "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.contents(new DiagnosticConsole()).toString() == ""
 
         // End of row
         console.visit(new Text("123"))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123 "
-        console.contents(new DiagnosticConsole()).toString() == "123 "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123"
+        console.contents(new DiagnosticConsole()).toString() == "123"
 
         // Start of first span
         console.visit(CarriageReturn.INSTANCE)
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
-        console.contents(new DiagnosticConsole()).toString() == " "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.contents(new DiagnosticConsole()).toString() == ""
 
         // Middle of span
         console.visit(new Text("123"))
         console.visit(new CursorBackward(2))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "1 "
-        console.contents(new DiagnosticConsole()).toString() == "1 "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1"
+        console.contents(new DiagnosticConsole()).toString() == "1"
 
         console.visit(NewLine.INSTANCE)
         console.visit(new CursorUp(1))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
-        console.contents(new DiagnosticConsole()).toString() == " \n"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.contents(new DiagnosticConsole()).toString() == "\n"
     }
 
     def "erase to end of line from inside rightmost span"() {
@@ -367,23 +367,23 @@ class AnsiConsoleTest extends Specification {
         // Start of span
         console.visit(CarriageReturn.INSTANCE)
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
-        console.contents(new DiagnosticConsole()).toString() == " "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.contents(new DiagnosticConsole()).toString() == ""
 
         // Middle of span
         console.visit(new Text("123"))
         console.visit(new CursorBackward(2))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "1 "
-        console.contents(new DiagnosticConsole()).toString() == "1 "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1"
+        console.contents(new DiagnosticConsole()).toString() == "1"
 
         // End of span
         console.visit(CarriageReturn.INSTANCE)
         console.visit(new Text("123"))
         console.visit(new CursorBackward(1))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "12 "
-        console.contents(new DiagnosticConsole()).toString() == "12 "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "12"
+        console.contents(new DiagnosticConsole()).toString() == "12"
     }
 
     def "erase to end of line from inside rightmost span with bold text"() {
@@ -393,23 +393,23 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("123"))
         console.visit(CarriageReturn.INSTANCE)
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
-        console.contents(new DiagnosticConsole()).toString() == " "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.contents(new DiagnosticConsole()).toString() == ""
 
         // Middle of span
         console.visit(new Text("123"))
         console.visit(new CursorBackward(2))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}1{bold-off} "
-        console.contents(new DiagnosticConsole()).toString() == "{bold-on}1{bold-off} "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}1{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}1{bold-off}"
 
         // End of span
         console.visit(CarriageReturn.INSTANCE)
         console.visit(new Text("123"))
         console.visit(new CursorBackward(1))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}12{bold-off} "
-        console.contents(new DiagnosticConsole()).toString() == "{bold-on}12{bold-off} "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "{bold-on}12{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "{bold-on}12{bold-off}"
     }
 
     def "erase to end of line from inside span with default text attributes and following content"() {
@@ -420,8 +420,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(CarriageReturn.INSTANCE)
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
-        console.contents(new DiagnosticConsole()).toString() == " "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.contents(new DiagnosticConsole()).toString() == ""
 
         // Middle of span
         console.visit(BoldOff.INSTANCE)
@@ -430,8 +430,8 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(new CursorBackward(5))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "1 "
-        console.contents(new DiagnosticConsole()).toString() == "1 "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "1"
+        console.contents(new DiagnosticConsole()).toString() == "1"
 
         // End of span
         console.visit(CarriageReturn.INSTANCE)
@@ -441,29 +441,29 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("456"))
         console.visit(new CursorBackward(4))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "12 "
-        console.contents(new DiagnosticConsole()).toString() == "12 "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "12"
+        console.contents(new DiagnosticConsole()).toString() == "12"
     }
 
     def "erase to end of line from outside rightmost span"() {
         expect:
         // Empty row
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == " "
-        console.contents(new DiagnosticConsole()).toString() == " "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == ""
+        console.contents(new DiagnosticConsole()).toString() == ""
 
         // After span
         console.visit(new Text("123"))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123 "
-        console.contents(new DiagnosticConsole()).toString() == "123 "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123"
+        console.contents(new DiagnosticConsole()).toString() == "123"
 
         // After span with bold
         console.visit(BoldOn.INSTANCE)
         console.visit(new Text("123"))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}123{bold-off} "
-        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}123{bold-off} "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}123{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}123{bold-off}"
     }
 
     def "can apply bold text"() {
@@ -503,8 +503,8 @@ class AnsiConsoleTest extends Specification {
 
         console.visit(new CursorBackward(4))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "12 "
-        console.contents(new DiagnosticConsole()).toString() == "12 \n+++"
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "12"
+        console.contents(new DiagnosticConsole()).toString() == "12\n+++"
 
         console.visit(new CursorForward(4))
         console.visit(BoldOn.INSTANCE)
@@ -725,22 +725,22 @@ class AnsiConsoleTest extends Specification {
         console.visit(new Text("789"))
         console.visit(new CursorBackward(4))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off} "
-        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off} "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}"
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}"
 
         console.visit(BoldOn.INSTANCE)
         console.visit(new CursorForward(2))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}   "
-        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}   "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  "
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  "
 
         console.visit(new Text("+++"))
         console.visit(BoldOff.INSTANCE)
         console.visit(new Text("..."))
         console.visit(new CursorForward(2))
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  {bold-on}+++{bold-off}...   "
-        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  {bold-on}+++{bold-off}...   "
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  {bold-on}+++{bold-off}...  "
+        console.contents(new DiagnosticConsole()).toString() == "123{bold-on}45{bold-off}  {bold-on}+++{bold-off}...  "
     }
 
     def "can erase to start of line over text with a mix of bold"() {
