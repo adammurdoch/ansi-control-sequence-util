@@ -30,6 +30,13 @@ public class TextColor {
         this.bright = bright;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        appendDiagnostics(result);
+        return result.toString();
+    }
+
     public void appendDiagnostics(StringBuilder builder) {
         if (bright) {
             builder.append("bright ");
