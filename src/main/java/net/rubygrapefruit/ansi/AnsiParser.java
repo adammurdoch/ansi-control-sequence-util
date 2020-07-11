@@ -141,7 +141,7 @@ public class AnsiParser {
             visitor.visit(BoldOff.INSTANCE);
             return true;
         }
-        if (params.equals("1")) {
+        if (params.equals("01") || params.equals("1")) {
             visitor.visit(BoldOn.INSTANCE);
             return true;
         }
