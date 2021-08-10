@@ -10,7 +10,7 @@ buildscript {
 plugins {
     id "java-library"
     id "groovy"
-    id "maven"
+    id "maven-publish"
     id "com.jfrog.bintray" version "1.7.3"
 }
 
@@ -22,8 +22,11 @@ group = 'net.rubygrapefruit'
 def nextVersion = '0.3'
 version = "${nextVersion}-dev"
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 
 dependencies {
     testImplementation 'org.codehaus.groovy:groovy-all:2.4.11'
