@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r'
@@ -15,7 +15,7 @@ plugins {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 group = 'net.rubygrapefruit'

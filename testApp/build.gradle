@@ -1,10 +1,15 @@
-apply plugin: 'application'
+plugins {
+    id 'application'
+}
 
 dependencies {
     implementation project(':')
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 
 mainClassName = 'net.rubygrapefruit.ansi.test.Main'
