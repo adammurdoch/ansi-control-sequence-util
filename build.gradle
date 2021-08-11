@@ -11,7 +11,7 @@ plugins {
     id "java-library"
     id "groovy"
     id "maven-publish"
-    id "com.jfrog.bintray" version "1.7.3"
+    id "signing"
 }
 
 repositories {
@@ -26,6 +26,8 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(8)
     }
+    withJavadocJar()
+    withSourcesJar()
 }
 
 dependencies {
@@ -34,38 +36,27 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier = 'sources'
-}
-
-task javadocJar(type: Jar) {
-    dependsOn javadoc
-    from javadoc.destinationDir
-    classifier = 'javadoc'
-}
-
-artifacts {
-    archives sourceJar
-    archives javadocJar
-}
-
-bintray {
-    user = 'adammurdoch'
-    key = System.getProperty("bintray-key")
-    pkg {
-        repo = 'maven'
-        name = 'ansi-control-sequence-util'
-        userOrg = 'adammurdoch'
-        licenses = ['Apache-2.0']
-        websiteUrl = 'https://github.com/adammurdoch/ansi-control-sequence-util'
-        vcsUrl = 'https://github.com/adammurdoch/ansi-control-sequence-util.git'
+publishing {
+    repositories {
+        maven {
+            url = "./build/repo"
+        }
     }
-    configurations = ['archives']
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+signing {
+    useGpgCmd()
+    sign publishing.publications.maven
+}
+
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+
 import java.util.regex.Pattern
 
 def tagName = objects.property(String)
@@ -101,12 +92,13 @@ task incrementVersion {
     }
 }
 
-bintrayUpload.mustRunAfter(test)
-bintrayUpload.mustRunAfter(tag)
-incrementVersion.mustRunAfter(bintrayUpload)
+publishMavenPublicationToMavenRepository.mustRunAfter(test)
+publishMavenPublicationToMavenRepository.mustRunAfter(tag)
+incrementVersion.mustRunAfter(publish)
 
+// Run with -Psigning.gnupg.keyName=
 task release {
-    dependsOn check, bintrayUpload, tag, incrementVersion
+    dependsOn check, tag, publish, incrementVersion
     group = 'release'
     description = 'release the next version'
 }
@@ -115,8 +107,5 @@ gradle.taskGraph.whenReady {
     if (it.allTasks.contains(release)) {
         project.version = nextVersion
     }
-    bintray.pkg.version.name = project.version
-    bintrayUpload.versionName = project.version
     tagName.set("v${project.version}")
-    bintrayUpload.versionVcsTag = tagName.get()
 }
