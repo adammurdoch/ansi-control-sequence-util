@@ -116,6 +116,7 @@ task incrementVersion {
 
 publishMavenPublicationToMavenRepository.mustRunAfter(test)
 tag.mustRunAfter(publish)
+incrementVersion.mustRunAfter(tag)
 incrementVersion.mustRunAfter(publish)
 
 // Run with -Psigning.gnupg.keyName=
