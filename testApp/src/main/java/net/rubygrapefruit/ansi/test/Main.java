@@ -61,6 +61,7 @@ public class Main {
     private static void display() throws IOException {
         Charset utf8 = Charset.forName("utf-8");
         String boldOn = "\u001B[1m";
+        String boldAndUnderline = "\u001B[04;01m";
         String boldOff = "\u001B[22m";
         String cursorDown2 = "\u001B[2B";
         String cursorUp2 = "\u001B[2A";
@@ -83,15 +84,19 @@ public class Main {
         String blueBackground = "\u001B[44m";
         String brightBlueBackground = "\u001B[104m";
 
-        System.out.write((reset + "\n" + underline + boldOn + "CURSOR" + reset + "\n").getBytes(utf8));
+        System.out.write((reset + "\n" + boldAndUnderline + "CURSOR" + reset + "\n").getBytes(utf8));
         System.out.write(("\n\n" + cursorUp2 + "normal     " + boldOn + "bold" + boldOff + cursorDown2 + "\r" + red + "red        " + boldOn + "bold red" + cursorBack20 + cursorUp1 + highBlack + "high black " + boldOn + "bold high black\n\n").getBytes(utf8));
+
+        System.out.write((reset + "\n" + boldAndUnderline + "TEXT" + reset + "\n").getBytes(utf8));
+        System.out.write((underline + "underline" + reset + "\n").getBytes(utf8));
+        System.out.write((underline + boldOn + "bold underline" + reset + "\n").getBytes(utf8));
 
         System.out.write((reset + "\n" + underline + boldOn + "BACKGROUND" + reset + "\n").getBytes(utf8));
         System.out.write((white + blueBackground + "white on blue        " + defaultColors + "\n").getBytes(utf8));
         System.out.write((white + brightBlueBackground + "white on bright blue " + defaultColors + "\n").getBytes(utf8));
         System.out.write((white + brightBlueBackground + cursorForward4 + " padding " + defaultColors + "\n").getBytes(utf8));
 
-        System.out.write((reset + "\n" + underline + boldOn + "ERASE" + reset + "\n").getBytes(utf8));
+        System.out.write((reset + "\n" + boldAndUnderline + "ERASE" + reset + "\n").getBytes(utf8));
         // Erase from middle of line to start
         System.out.write(("12345<empty>" + redBackground + cursorBack8 + eraseToStartLine + defaultColors + "\n").getBytes(utf8));
         // Erase from end of line to start
@@ -111,7 +116,7 @@ public class Main {
         // Erase from middle of line
         System.out.write(("12345<empty>" + redBackground + cursorBack7 + eraseLine + defaultColors + "\n").getBytes(utf8));
 
-        System.out.write((reset + "\n" + underline + boldOn + "COLORS" + reset + "\n").getBytes(utf8));
+        System.out.write((reset + "\n" + boldAndUnderline + "COLORS" + reset + "\n").getBytes(utf8));
         System.out.write("\u001B[30mblack    \u001B[1mbold    \u001B[22;90mbright    \u001B[1mbold    \u001B[0;37;40mbackground    \u001B[100mbright    \u001B[0m\n".getBytes(utf8));
         System.out.write("\u001B[31mred      \u001B[1mbold    \u001B[22;91mbright    \u001B[1mbold    \u001B[0;37;41mbackground    \u001B[101mbright    \u001B[0m\n".getBytes(utf8));
         System.out.write("\u001B[32mgreen    \u001B[1mbold    \u001B[22;92mbright    \u001B[1mbold    \u001B[0;37;42mbackground    \u001B[102mbright    \u001B[0m\n".getBytes(utf8));

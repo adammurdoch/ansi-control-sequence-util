@@ -289,11 +289,13 @@ class AnsiParserTest extends Specification {
         def output = parser.newParser("utf-8", visitor)
         output.write(bytes("\u001B[1m"))
         output.write(bytes("\u001B[22m"))
+        output.write(bytes("\u001B[01m"))
 
         then:
-        visitor.tokens.size() == 2
+        visitor.tokens.size() == 3
         visitor.tokens[0] instanceof BoldOn
         visitor.tokens[1] instanceof BoldOff
+        visitor.tokens[2] instanceof BoldOn
     }
 
     def "parses composite text attribute control sequence"() {
@@ -303,9 +305,10 @@ class AnsiParserTest extends Specification {
         output.write(bytes("\u001B[32;1m"))
         output.write(bytes("\u001B[39;22m"))
         output.write(bytes("\u001B[22;39;32;1m"))
+        output.write(bytes("\u001B[0;01m"))
 
         then:
-        visitor.tokens.size() == 12
+        visitor.tokens.size() == 16
         visitor.tokens[0] instanceof ForegroundColor
         visitor.tokens[0].color == TextColor.DEFAULT
         visitor.tokens[1] instanceof BackgroundColor
@@ -325,6 +328,12 @@ class AnsiParserTest extends Specification {
         visitor.tokens[10] instanceof ForegroundColor
         visitor.tokens[10].color == TextColor.GREEN
         visitor.tokens[11] instanceof BoldOn
+        visitor.tokens[12] instanceof ForegroundColor
+        visitor.tokens[12].color == TextColor.DEFAULT
+        visitor.tokens[13] instanceof BackgroundColor
+        visitor.tokens[13].color == TextColor.DEFAULT
+        visitor.tokens[14] instanceof BoldOff
+        visitor.tokens[15] instanceof BoldOn
     }
 
     @Unroll
