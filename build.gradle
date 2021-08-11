@@ -40,11 +40,13 @@ publishing {
     repositories {
         maven {
             url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials(PasswordCredentials)
         }
     }
     publications {
         maven(MavenPublication) {
             pom {
+                name = 'ansi-control-sequence-util'
                 description = 'A library of utilities for parsing text that contains ANSI control sequences'
                 url = 'https://github.com/adammurdoch/ansi-control-sequence-util'
                 licenses {
@@ -113,7 +115,7 @@ task incrementVersion {
 }
 
 publishMavenPublicationToMavenRepository.mustRunAfter(test)
-publishMavenPublicationToMavenRepository.mustRunAfter(tag)
+tag.mustRunAfter(publish)
 incrementVersion.mustRunAfter(publish)
 
 // Run with -Psigning.gnupg.keyName=
