@@ -6,11 +6,11 @@ This can be used to implement a terminal emulator or for testing or documenting 
 
 ```
 repositories { 
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    implementation 'net.rubygrapefruit:ansi-control-sequence-util:0.2'
+    implementation 'net.rubygrapefruit:ansi-control-sequence-util:0.3'
 }
 ```
 
