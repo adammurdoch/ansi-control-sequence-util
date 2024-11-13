@@ -98,9 +98,12 @@ class AnsiParserTest extends Specification {
         output.write(bytes("\u001B[33C"))
         output.write(bytes("\u001B[D"))
         output.write(bytes("\u001B[20D"))
+        output.write(bytes("\u001B[G"))
+        output.write(bytes("\u001B[1G"))
+        output.write(bytes("\u001B[20G"))
 
         then:
-        visitor.tokens.size() == 9
+        visitor.tokens.size() == 12
         visitor.tokens[0] instanceof CursorUp
         visitor.tokens[0].count == 1
         visitor.tokens[1] instanceof CursorUp
@@ -119,6 +122,12 @@ class AnsiParserTest extends Specification {
         visitor.tokens[7].count == 1
         visitor.tokens[8] instanceof CursorBackward
         visitor.tokens[8].count == 20
+        visitor.tokens[9] instanceof CursorToColumn
+        visitor.tokens[9].count == 1
+        visitor.tokens[10] instanceof CursorToColumn
+        visitor.tokens[10].count == 1
+        visitor.tokens[11] instanceof CursorToColumn
+        visitor.tokens[11].count == 20
     }
 
     def "parses line clear control sequence"() {

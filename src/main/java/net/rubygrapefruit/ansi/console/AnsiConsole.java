@@ -60,6 +60,8 @@ public class AnsiConsole implements Visitor {
             rows.get(row).eraseToStart(col);
         } else if (token instanceof EraseToEndOfLine) {
             rows.get(row).eraseToEnd(col);
+        } else if (token instanceof CursorToColumn) {
+            col = ((CursorToColumn) token).getCount();
         } else if (token instanceof BoldOn) {
             attributes = attributes.boldOn();
         } else if (token instanceof BoldOff) {
