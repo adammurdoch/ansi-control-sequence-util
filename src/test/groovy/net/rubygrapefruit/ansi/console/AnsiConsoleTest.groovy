@@ -265,6 +265,34 @@ class AnsiConsoleTest extends Specification {
         console.contents(new DiagnosticConsole()).toString() == "some text\n...__\n1___"
     }
 
+    def "can move cursor to column"() {
+        given:
+        console.visit(new Text("some text"))
+        console.visit(NewLine.INSTANCE)
+        console.visit(NewLine.INSTANCE)
+        console.visit(new Text("123"))
+
+        expect:
+        console.visit(new CursorToColumn(1))
+        console.visit(new Text("___"))
+        console.rows[2].visit(new DiagnosticConsole()).toString() == "1___"
+        console.contents(new DiagnosticConsole()).toString() == "some text\n\n1___"
+
+        // Position cursor beyond end of line
+        console.visit(new CursorToColumn(5))
+        console.visit(new Text("+++"))
+        console.rows[2].visit(new DiagnosticConsole()).toString() == "1___ +++"
+        console.contents(new DiagnosticConsole()).toString() == "some text\n\n1___ +++"
+
+        // Move beyond end of next row and back
+        console.visit(NewLine.INSTANCE)
+        console.visit(new CursorToColumn(10))
+        console.visit(new CursorUp(3))
+        console.visit(new Text("---"))
+        console.rows[0].visit(new DiagnosticConsole()).toString() == "some text ---"
+        console.contents(new DiagnosticConsole()).toString() == "some text ---\n\n1___ +++\n"
+    }
+
     def "can erase in line"() {
         expect:
         console.visit(EraseInLine.INSTANCE)

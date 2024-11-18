@@ -8,6 +8,7 @@ import net.rubygrapefruit.ansi.token.CarriageReturn
 import net.rubygrapefruit.ansi.token.CursorBackward
 import net.rubygrapefruit.ansi.token.CursorDown
 import net.rubygrapefruit.ansi.token.CursorForward
+import net.rubygrapefruit.ansi.token.CursorToColumn
 import net.rubygrapefruit.ansi.token.CursorUp
 import net.rubygrapefruit.ansi.token.EraseInLine
 import net.rubygrapefruit.ansi.token.EraseToBeginningOfLine
@@ -44,12 +45,13 @@ class DiagnosticConsoleTest extends Specification {
         console.visit(new CursorDown(12))
         console.visit(new CursorForward(1))
         console.visit(new CursorBackward(1))
-        console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}"
+        console.visit(new CursorToColumn(1))
+        console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}{cursor-to-col 1}"
 
         console.visit(EraseInLine.INSTANCE)
         console.visit(EraseToBeginningOfLine.INSTANCE)
         console.visit(EraseToEndOfLine.INSTANCE)
-        console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}{erase-in-line}{erase-to-beginning-of-line}{erase-to-end-of-line}"
+        console.toString() == "abc{escape 1;2m}\n{escape A}\n{cursor-up 4}{cursor-down 12}{cursor-forward 1}{cursor-backward 1}{cursor-to-col 1}{erase-in-line}{erase-to-beginning-of-line}{erase-to-end-of-line}"
 
         console.contents(new DiagnosticConsole()).toString() == console.toString()
     }

@@ -96,6 +96,14 @@ public class AnsiParser {
                 return true;
             }
         }
+        if (code == 'G') {
+            if (params.isEmpty() || params.equals("1")) {
+                visitor.visit(new CursorToColumn(1));
+            } else {
+                visitor.visit(new CursorToColumn(Integer.parseInt(params)));
+            }
+            return true;
+        }
         if (code == 'm') {
             if (params.isEmpty()) {
                 visitor.visit(ForegroundColor.DEFAULT);
