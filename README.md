@@ -23,7 +23,6 @@ Not all control sequences are supported yet:
 - Unsupported cursor movement control sequences:
     - Cursor next line
     - Cursor previous line
-    - Cursor horizontal absolute
     - Cursor position
     - Scroll up
     - Scroll down
