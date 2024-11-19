@@ -41,11 +41,13 @@ test {
     useJUnitPlatform()
 }
 
+def releaseWorkDir = layout.buildDirectory.dir("release")
+def publicationDir = releaseWorkDir.map { it.dir("publication") }
+
 publishing {
     repositories {
         maven {
-            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials(PasswordCredentials)
+            url = publicationDir
         }
     }
     publications {
@@ -79,6 +81,38 @@ publishing {
 signing {
     useGpgCmd()
     sign publishing.publications.maven
+}
+
+task upload {
+    dependsOn tasks.publishMavenPublicationToMavenRepository
+    def zipFile = releaseWorkDir.map { it.file("bundle.zip") }
+    doLast {
+        def username = System.getenv("MAVEN_CENTRAL_USERNAME")
+        def password = System.getenv("MAVEN_CENTRAL_PASSWORD")
+        if (username == null || password == null) {
+            throw new IllegalArgumentException("Environment variables MAVEN_CENTRAL_USERNAME and MAVEN_CENTRAL_PASSWORD must be set.")
+        }
+        def authToken = Base64.encoder.withoutPadding().encodeToString("$username:$password".bytes)
+
+        def zip = zipFile.get().asFile
+        zip.delete()
+        exec {
+            commandLine = ["zip", "-r", "-q", zip.path, "."]
+            workingDir = publicationDir.get().asFile
+        }
+
+        exec {
+            commandLine = [
+                    "curl",
+                    "--request", "POST",
+                    "--verbose",
+                    "--fail",
+                    "--header", "Authorization: Bearer $authToken",
+                    "--form", "bundle=@$zip",
+                    "https://central.sonatype.com/api/v1/publisher/upload"
+            ]
+        }
+    }
 }
 
 import org.eclipse.jgit.api.Git
@@ -120,13 +154,13 @@ task incrementVersion {
 }
 
 publishMavenPublicationToMavenRepository.mustRunAfter(test)
-tag.mustRunAfter(publish)
+tag.mustRunAfter(upload)
 incrementVersion.mustRunAfter(tag)
 incrementVersion.mustRunAfter(publish)
 
 // Run with -Psigning.gnupg.keyName=
 task release {
-    dependsOn check, tag, publish, incrementVersion
+    dependsOn check, tag, upload, incrementVersion
     group = 'release'
     description = 'release the next version'
 }
