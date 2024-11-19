@@ -19,7 +19,7 @@ repositories {
 }
 
 group = 'net.rubygrapefruit'
-def nextVersion = '0.4'
+def nextVersion = '0.5'
 version = "${nextVersion}-dev"
 
 java {
