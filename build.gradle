@@ -83,6 +83,12 @@ signing {
     sign publishing.publications.maven
 }
 
+//
+// - Create and upload GPG signing key, see https://central.sonatype.org/publish/requirements/gpg/
+// - Create Maven central token, see https://central.sonatype.org/publish/generate-portal-token/
+// - Set `$MAVEN_CENTRAL_USERNAME` and `$MAVEN_CENTRAL_PASSWORD` using values from the previous step
+//
+//
 task upload {
     dependsOn tasks.publishMavenPublicationToMavenRepository
     def zipFile = releaseWorkDir.map { it.file("bundle.zip") }
@@ -158,7 +164,16 @@ tag.mustRunAfter(upload)
 incrementVersion.mustRunAfter(tag)
 incrementVersion.mustRunAfter(publish)
 
+//
+// See upload task above for setup instructions
+//
 // Run with -Psigning.gnupg.keyName=
+//
+// After running this task:
+// - promote on Maven central, see https://central.sonatype.com/publishing
+// - update README.md with new version
+// - push tag and updates
+//
 task release {
     dependsOn check, tag, upload, incrementVersion
     group = 'release'
